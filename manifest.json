@@ -1,0 +1,26 @@
+{
+  "short_name": "Studio Live",
+  "name": "WearsBlackHasBeard Studio Live",
+  "icons": [
+    {
+      "src": "https://s3-eu-west-1.amazonaws.com/wbhb-blog/images/logo_new.w640.jpg",
+      "type": "image/png",
+      "sizes": "640x640"
+    },
+    {
+      "src": "https://s3-eu-west-1.amazonaws.com/wbhb-blog/images/logo_new.w16.png",
+      "type": "image/png",
+      "sizes": "16x16"
+    },
+    {
+      "src": "https://s3-eu-west-1.amazonaws.com/wbhb-blog/images/logo_new.w320.jpg",
+      "type": "image/png",
+      "sizes": "320x320"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#fedb00",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#fedb00"
+}

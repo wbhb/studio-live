@@ -1,0 +1,407 @@
+<html>
+  <head>
+    <title>WBHB Studio Live</title>
+    
+    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
+    
+    <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
+    
+    <script type="module" src='./lib/scheduler/scheduler.js'></script>
+    <script type="module" src='./lib/sequencer/sequencer.js'></script>
+    <script type="module" src='./lib/sequencer/sampleSequencer.js'></script>
+    <script type="module" src='./lib/sequencer/metronome.js'></script>
+    <script type="module" src='./lib/sequencer/prompts.js'></script>
+    <script type="module" src='./lib/sequencer/songSheetSequencer.js'></script>
+    <script type="module" src='./lib/util/chords.js'></script>
+    <script type="module" src='./lib/ui/wbhb-button.js'></script>
+    <script type="module" src='./lib/ui/wbhb-adjust-tempo.js'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer.js'></script>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <style>
+      
+      html {
+        
+        --wbhb-color-yellow: #fedb00;
+        --wbhb-color-grey: #53565A;
+        --wbhb-color-black: #000000;
+        --wbhb-color-white: #ffffff;
+        --wbhb-font-heading: "Ubuntu", sans-serif;
+        --wbhb-font-body: "Cala Light", serif;
+        
+        --grid-size: 15vw;
+        --grid-gap: 5vw;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        
+        overflow-x: hidden;
+        
+        font-family: var(--wbhb-font-heading);
+        background-color: var(--wbhb-color-black);
+        color: var(--wbhb-color-white);
+      }
+      
+      #controls {
+        margin: 2.5vw;
+        padding: 0;
+        width: 95vw;
+        display: grid;
+        grid-template-columns: repeat(5, var(--grid-size));
+        grid-auto-rows: var(--grid-size);
+        grid-gap: var(--grid-gap);
+      }
+      
+      #logo {
+        font-size: 24pt;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        grid-column: span 2;
+        width: calc(calc(2 * var(--grid-size)) + var(--grid-gap));
+      }
+      
+      #logo h1 {
+        font-size: 36pt;
+        margin-bottom: -18pt;
+      }
+      
+      #logo h2 {
+        font-size: 18pt;
+        color: var(--wbhb-color-grey);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <div id="logo">
+        <h1>Studio Live</h1>
+        <h2>By WearsBlackHasBeard</h2>
+      </div>
+      
+      <wbhb-button name="Start"></wbhb-button>
+      <wbhb-button name="Stop" draggable="true"></wbhb-button>
+      
+      <wbhb-button name="Time" type="Preset">
+        <wbhb-button type="Time" name="2/2" draggable="true"></wbhb-button>
+        <wbhb-button type="Time" name="?/4">
+          <wbhb-button type="Time" name="2/4" draggable="true"></wbhb-button>
+          <wbhb-button type="Time" name="3/4" draggable="true"></wbhb-button>
+          <wbhb-button type="Time" name="4/4" draggable="true"></wbhb-button>
+          <wbhb-button type="Time" name="5/4" draggable="true"></wbhb-button>
+        </wbhb-button>
+        <wbhb-button type="Time" name="6/8" draggable="true"></wbhb-button>
+      </wbhb-button>
+      <wbhb-adjust-tempo>
+        <wbhb-button name="Tempo" type="Preset">
+          <wbhb-button type="BPM" name="54" draggable="true"></wbhb-button>
+          <wbhb-button type="BPM" name="60" draggable="true"></wbhb-button>
+          <wbhb-button type="BPM" name="90" draggable="true"></wbhb-button>
+          <wbhb-button type="BPM" name="120" draggable="true"></wbhb-button>
+          <wbhb-button type="BPM" name="160" draggable="true"></wbhb-button>
+        </wbhb-button>
+      </wbhb-adjust-tempo>
+      
+      <wbhb-button name="Death was Arrested" type="Song" wide></wbhb-button>
+      
+      <wbhb-button type="Prompt" name="Bridge" draggable="true">
+        <wbhb-button type="Prompt" name="Bridge 1" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Bridge 2" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Bridge 3" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Bridge 4" draggable="true"></wbhb-button>
+      </wbhb-button>
+      <wbhb-button type="Prompt" name="Chorus" draggable="true">
+        <wbhb-button type="Prompt" name="Pre Chorus" draggable="true">
+          <wbhb-button type="Prompt" name="Pre Chorus 1" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Pre Chorus 2" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Pre Chorus 3" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Pre Chorus 4" draggable="true"></wbhb-button>
+        </wbhb-button>
+        <wbhb-button type="Prompt" name="Chorus 1" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Chorus 2" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Chorus 3" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Chorus 4" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Post Chorus" draggable="true"></wbhb-button>
+      </wbhb-button>
+      <wbhb-button type="Prompt" name="Verse" draggable="true">
+        <wbhb-button type="Prompt" name="Verse 1" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Verse 2" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Verse 3" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Verse 4" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Verse 5" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Verse 6" draggable="true"></wbhb-button>
+      </wbhb-button>
+      <wbhb-button type="Prompt" name="More">
+        <wbhb-button type="Prompt" name="Intro" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Outro" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Ending" draggable="true"></wbhb-button>
+        <wbhb-button type="Prompt" name="Betweens">
+          <wbhb-button type="Prompt" name="Interlude" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Turnaround" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Instrumental" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Acapella" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Breakdown" draggable="true"></wbhb-button>
+        </wbhb-button>
+        <wbhb-button type="Prompt" name="Specials">
+          <wbhb-button type="Prompt" name="Exhortation" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Rap" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Tag" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Refrain" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Solo" draggable="true"></wbhb-button>
+          <wbhb-button type="Prompt" name="Vamp" draggable="true"></wbhb-button>
+        </wbhb-button>
+      </wbhb-button>
+      
+      <wbhb-button type="" name="Chords">
+        <wbhb-button type="Major" name="Root" draggable="true"></wbhb-button>
+        <wbhb-button type="Major" name="Forth" draggable="true"></wbhb-button>
+        <wbhb-button type="Major" name="Fifth" draggable="true"></wbhb-button>
+        <wbhb-button type="Minor" name="Sixth" draggable="true"></wbhb-button>
+        <wbhb-button type="More" name="Common">
+          <wbhb-button type="Major" name="Second" draggable="true"></wbhb-button>
+          <wbhb-button type="Minor" name="Third" draggable="true"></wbhb-button>
+          <wbhb-button type="Major" name="Seventh" draggable="true"></wbhb-button>
+          <wbhb-button type="Minor" name="Seventh" draggable="true"></wbhb-button>
+        </wbhb-button>
+        <wbhb-button type="More" name="Modifiers">
+          <wbhb-button type="Modifier" name="Sus" draggable="true"></wbhb-button>
+          <wbhb-button type="Modifier" name="2" draggable="true"></wbhb-button>
+          <wbhb-button type="Modifier" name="4" draggable="true"></wbhb-button>
+          <wbhb-button type="Modifier" name="Minor" draggable="true"></wbhb-button>
+        </wbhb-button>
+      </wbhb-button>
+    </div>
+    
+    <wbhb-sequencer></wbhb-sequencer>
+
+    <script type="module">
+      import {Scheduler} from './lib/scheduler/scheduler.js';
+      import {Metronome} from './lib/sequencer/metronome.js';
+      import {Prompts, PromptSamples} from './lib/sequencer/prompts.js';
+      import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
+      
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContext) {
+        throw new Error("WebAudio not supported");
+      }
+
+      let audioCtx;
+      let songs = {};
+      let samples = {};
+      
+      let taps = [];
+      
+      const scheduler = new Scheduler();
+      const metronome = new Metronome(scheduler);
+      const prompts = new Prompts(scheduler, {samples: PromptSamples});
+      const songSheetSequencer = new SongSheetSequencer(scheduler);
+      
+      
+      let preLoad = async () => {
+        songs["Raise A Hallelujah"] = await fetch("./static/songs/RaiseAHallelujah.json")
+          .then(function(response) {
+            return response.json();
+          });
+        songs["Death Was Arrested"] = await fetch("./static/songs/DeathWasArrested.json")
+          .then(function(response) {
+            return response.json();
+          });
+        songs["Forever"] = await fetch("./static/songs/Forever.json")
+          .then(function(response) {
+            return response.json();
+          });
+        songs["Resurrecting"] = await fetch("./static/songs/Resurrecting.json")
+          .then(function(response) {
+            return response.json();
+          });
+        // PromptSamples.forEach();
+      }
+      
+      preLoad().then(() => {
+        if (!audioCtx) {
+          audioCtx = new AudioContext();
+      
+          scheduler.audioContext = audioCtx;
+        }
+        // document.querySelector("#start").removeAttribute("disabled");
+      });
+      
+      const maps = {};
+      
+      maps["C"] = {
+        "I": "C",
+        "II": "D",
+        "III": "E",
+        "IV": "F",
+        "V": "G",
+        "VI": "A",
+        "VII": "B",
+      };
+      
+      maps["A\u266D"] = {
+        "I": "A\u266D",
+        "II": "B\u266D",
+        "III": "C",
+        "IV": "D\u266D",
+        "V": "E\u266D",
+        "VI": "F",
+        "VII": "G"
+      };
+      
+      let currentKey = maps["C"];
+      
+      scheduler.addEventListener("key", (e) => {
+        currentKey = maps[e.detail.item.key.root];
+      });
+      
+      scheduler.addEventListener("chord", (e) => {
+        document.querySelector("#current-chord h1").innerHTML = `${currentKey[e.detail.item.chord.interval]}<span class="small">${e.detail.item.chord.quality || ""}</span>${currentKey[e.detail.item.chord.bass] || ""}`;
+      });
+      
+      document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
+        
+        let start = new CustomEvent("start");
+        scheduler.dispatchEvent(start);
+      });
+      
+      document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
+        let stop = new CustomEvent("scheduleItem", { detail: { item: {
+              type: "command",
+              command: "stop"
+            }
+          }
+        });
+        scheduler.dispatchEvent(stop);
+      });
+      
+      document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
+        let newTempo = e.target.value;
+        let evt = new CustomEvent("command", { detail: { item: {
+              command: "tempo",
+              tempo: {
+                beatTime: e.detail
+              }
+            }
+          }
+        });
+        scheduler.dispatchEvent(evt);
+      });
+      
+      // document.querySelectorAll('.button.command').forEach((node) => {
+      //   node.addEventListener('click', (e) => {
+      //     const item = JSON.parse(e.target.getAttribute('item'));
+          
+      //     let evt = new CustomEvent("command", { detail: { item
+      //       }
+      //     });
+      //     scheduler.dispatchEvent(evt);
+      //   });
+      // });
+      
+      // document.querySelectorAll('.cueSong').forEach((node) => {
+      //   node.addEventListener('click', (e) => {
+      //     let name = e.target.attributes['name'].value;
+          
+      //     scheduler.dispatchEvent(new CustomEvent("song", {detail: { item: {
+      //         type: "song",
+      //         song: songs[name],
+      //         immediate: true
+      //       }
+      //     }}));
+      //   });
+      // });
+      
+      // document.querySelectorAll('.cueTrack').forEach((node) => {
+      //   node.addEventListener('click', (e) => {
+      //     let name = e.target.attributes['name'].value;
+      //     let count = false;
+      //     if (e.target.attributes['count']) {
+      //       count = true;
+      //     }
+      //     scheduler.dispatchEvent(new CustomEvent("prompt", {detail: { item: {
+      //       type: "prompt",
+      //       prompt: {
+      //         name
+      //       },
+      //       count
+      //     }}}));
+      //   });
+      // });
+      
+      scheduler.addEventListener("itemsUpdated", (e) => {
+        const scheduleContainer = document.querySelector(".schedule-wrapper");
+        let innerHTML = "";
+        const items = e.detail.item.items;
+        const overlay = scheduleContainer.removeChild(document.querySelector(".schedule-wrapper > .overlay"));
+        
+        let itemText = (item) => {
+          switch (item.type) {
+            case "command":
+              return item.command;
+            case "prompt":
+              return item.prompt.name;
+            case "section":
+              return item.section.name;
+            case "chord":
+              return `${currentKey[item.chord.interval]}${item.chord.quality || ""}${currentKey[item.chord.bass] || ""}`;
+            default:
+              return "";
+          }
+        };
+        
+        items.forEach((item) => {
+          const length = item.length ? (item.length.bar ? item.length.bar : 1) : 1;
+          const startColumn = item.bar + 1;
+          const endColumn = startColumn + length;
+          
+          innerHTML = `${innerHTML}
+            <div class="schedule-item ${item.type}" style="grid-column-start: ${startColumn}; grid-column-end: ${endColumn}" id="${item.id}" draggable="true"="true">${itemText(item)}</div>
+          `;
+        });
+        
+        scheduleContainer.innerHTML = innerHTML;
+        
+        scheduleContainer.appendChild(overlay);
+        
+        document.querySelectorAll('.schedule-item').forEach((node) => {
+          node.addEventListener('dragstart', (e) => {
+            node.style.zIndex = 3;
+            document.querySelector(".schedule-wrapper > .overlay").classList.remove("hidden");
+          });
+          
+          node.addEventListener('drag', (e) => {
+            
+          });
+          
+          node.addEventListener('dragend', (e) => {
+            node.style.zIndex = 1;
+            document.querySelector(".schedule-wrapper > .overlay").classList.add("hidden");
+          });
+        });
+      });
+      
+      document.querySelectorAll(".schedule-wrapper > .overlay > .cell").forEach((node) => {
+        node.addEventListener('dragenter', (e) => {
+          node.classList.add("target");
+        });
+        node.addEventListener('dragleave', (e) => {
+          node.classList.remove("target");
+        });
+      });
+      
+      scheduler.addEventListener("nextBar", (e) => {
+        const scheduleContainer = document.querySelector(".schedule-wrapper");
+        const scheduleOverlay = document.querySelector(".schedule-wrapper > .overlay");
+        
+        let offset = (songSheetSequencer._currentBar - 2) * 25;
+        
+        scheduleContainer.style.transform = `translateX(-${offset}vmin)`;
+        scheduleOverlay.style.transform = `translateX(${offset}vmin)`;
+      });
+    </script>
+  </body>
+</html>
