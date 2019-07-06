@@ -393,15 +393,15 @@
         });
       });
       
-      scheduler.addEventListener("nextBar", (e) => {
-        const scheduleContainer = document.querySelector(".schedule-wrapper");
-        const scheduleOverlay = document.querySelector(".schedule-wrapper > .overlay");
+      // scheduler.addEventListener("nextBar", (e) => {
+      //   const scheduleContainer = document.querySelector(".schedule-wrapper");
+      //   const scheduleOverlay = document.querySelector(".schedule-wrapper > .overlay");
         
-        let offset = (songSheetSequencer._currentBar - 2) * 25;
+      //   let offset = (songSheetSequencer._currentBar - 2) * 25;
         
-        scheduleContainer.style.transform = `translateX(-${offset}vmin)`;
-        scheduleOverlay.style.transform = `translateX(${offset}vmin)`;
-      });
+      //   scheduleContainer.style.transform = `translateX(-${offset}vmin)`;
+      //   scheduleOverlay.style.transform = `translateX(${offset}vmin)`;
+      // });
     </script>
   </body>
 </html>
