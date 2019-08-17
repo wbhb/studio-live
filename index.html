@@ -8,6 +8,7 @@
     
     <script type="module" src='./lib/ui/wbhb-button.js'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.js'></script>
+    <script type="module" src='./lib/ui/wbhb-chord.js'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.js'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <style>
@@ -166,6 +167,8 @@
           <wbhb-button type="Modifier" name="Minor" draggable="true"></wbhb-button>
         </wbhb-button>
       </wbhb-button>
+      
+      <wbhb-chord></wbhb-chord>
     </div>
     
     <wbhb-sequencer></wbhb-sequencer>
@@ -175,8 +178,10 @@
       import {Metronome} from './lib/sequencer/metronome.js';
       import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
       import {PromptItem} from './lib/sequencer/items/PromptItem.js';
+      import {ChordItem} from './lib/sequencer/items/ChordItem.js';
       import {TimeSignature} from './lib/util/timeSignature.js';
       import {Prompts} from './lib/sequencer/prompts.js';
+      import {Chord} from './lib/util/chords.js';
       // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -226,6 +231,22 @@
           item.add(name);
           scheduler.dispatchEvent(item);
         });
+      });
+      
+      document.querySelectorAll('wbhb-button[name="Chords"] wbhb-button:not([type="More"]):not([type="Modifier"])').forEach((node) => {
+        const name = node.getAttribute('name');
+        const type = node.getAttribute('type');
+        node.addEventListener('click', () => {
+          let item = new ChordItem({timings: {immediate: true}});
+          let chord = new Chord(name);
+          chord = chord.setQuality(type);
+          item.chord = chord;
+          scheduler.dispatchEvent(item);
+        });
+      });
+      
+      document.querySelectorAll('wbhb-chord').forEach((node) => {
+        node.scheduler = scheduler;
       });
       
       // document.querySelectorAll('.cueSong').forEach((node) => {
