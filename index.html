@@ -6,13 +6,6 @@
     
     <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
     
-    <!--<script type="module" src='./lib/scheduler/scheduler.js'></script>-->
-    <!--<script type="module" src='./lib/sequencer/sequencer.js'></script>-->
-    <!--<script type="module" src='./lib/sequencer/sampleSequencer.js'></script>-->
-    <!--<script type="module" src='./lib/sequencer/metronome.js'></script>-->
-    <!--<script type="module" src='./lib/sequencer/prompts.js'></script>-->
-    <!--<script type="module" src='./lib/sequencer/songSheetSequencer.js'></script>-->
-    <!--<script type="module" src='./lib/util/chords.js'></script>-->
     <script type="module" src='./lib/ui/wbhb-button.js'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.js'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.js'></script>
@@ -181,6 +174,7 @@
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
       import {Metronome} from './lib/sequencer/metronome.js';
       import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
+      import {TimeSignature} from './lib/util/timeSignature.js';
       // import {Prompts, PromptSamples} from './lib/sequencer/prompts.js';
       // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
@@ -192,14 +186,6 @@
       
       const scheduler = new Scheduler();
       const metronome = new Metronome(scheduler);
-      
-      // preLoad().then(() => {
-      //   if (!audioCtx) {
-      
-      //     scheduler.audioContext = new AudioContext();
-      //   }
-      //   // document.querySelector("#start").removeAttribute("disabled");
-      // });
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         scheduler.audioContext = new AudioContext();
@@ -213,16 +199,22 @@
       });
       
       document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
-        let newTempo = e.target.value;
-        let evt = new CustomEvent("command", { detail: { item: {
-              command: "tempo",
-              tempo: {
-                beatTime: e.detail
-              }
-            }
-          }
-        });
-        scheduler.dispatchEvent(evt);
+        let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TEMPO});
+        item.payload = document.querySelector('wbhb-adjust-tempo').tempo;
+        scheduler.scheduleItem(item);
+      });
+      
+      document.querySelectorAll('wbhb-button[type="Time"]').forEach((node) => {
+        const parts = node.getAttribute('name').split('/');
+        const upper = Number.parseInt(parts[0], 10);
+        const lower = Number.parseInt(parts[1], 10);
+        if (upper && lower) {
+          node.addEventListener('click', () => {
+            let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TIME_SIGNATURE});
+            item.payload = new TimeSignature(upper, lower);
+            scheduler.dispatchEvent(item);
+          });
+        }
       });
       
       // document.querySelectorAll('.button.command').forEach((node) => {
