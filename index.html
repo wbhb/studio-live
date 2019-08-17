@@ -6,13 +6,6 @@
     
     <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
     
-    <script type="module" src='./lib/scheduler/scheduler.js'></script>
-    <script type="module" src='./lib/sequencer/sequencer.js'></script>
-    <script type="module" src='./lib/sequencer/sampleSequencer.js'></script>
-    <script type="module" src='./lib/sequencer/metronome.js'></script>
-    <script type="module" src='./lib/sequencer/prompts.js'></script>
-    <script type="module" src='./lib/sequencer/songSheetSequencer.js'></script>
-    <script type="module" src='./lib/util/chords.js'></script>
     <script type="module" src='./lib/ui/wbhb-button.js'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.js'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.js'></script>
@@ -178,129 +171,62 @@
     <wbhb-sequencer></wbhb-sequencer>
 
     <script type="module">
-      import {Scheduler} from './lib/scheduler/scheduler.js';
+      import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
       import {Metronome} from './lib/sequencer/metronome.js';
-      import {Prompts, PromptSamples} from './lib/sequencer/prompts.js';
-      import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
+      import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
+      import {PromptItem} from './lib/sequencer/items/PromptItem.js';
+      import {TimeSignature} from './lib/util/timeSignature.js';
+      import {Prompts} from './lib/sequencer/prompts.js';
+      // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
       if (!AudioContext) {
         throw new Error("WebAudio not supported");
       }
-
-      let audioCtx;
-      let songs = {};
-      let samples = {};
-      
-      let taps = [];
       
       const scheduler = new Scheduler();
       const metronome = new Metronome(scheduler);
-      const prompts = new Prompts(scheduler, {samples: PromptSamples});
-      const songSheetSequencer = new SongSheetSequencer(scheduler);
-      
-      
-      let preLoad = async () => {
-        songs["Raise A Hallelujah"] = await fetch("./static/songs/RaiseAHallelujah.json")
-          .then(function(response) {
-            return response.json();
-          });
-        songs["Death Was Arrested"] = await fetch("./static/songs/DeathWasArrested.json")
-          .then(function(response) {
-            return response.json();
-          });
-        songs["Forever"] = await fetch("./static/songs/Forever.json")
-          .then(function(response) {
-            return response.json();
-          });
-        songs["Resurrecting"] = await fetch("./static/songs/Resurrecting.json")
-          .then(function(response) {
-            return response.json();
-          });
-        // PromptSamples.forEach();
-      }
-      
-      preLoad().then(() => {
-        if (!audioCtx) {
-          audioCtx = new AudioContext();
-      
-          scheduler.audioContext = audioCtx;
-        }
-        // document.querySelector("#start").removeAttribute("disabled");
-      });
-      
-      const maps = {};
-      
-      maps["C"] = {
-        "I": "C",
-        "II": "D",
-        "III": "E",
-        "IV": "F",
-        "V": "G",
-        "VI": "A",
-        "VII": "B",
-      };
-      
-      maps["A\u266D"] = {
-        "I": "A\u266D",
-        "II": "B\u266D",
-        "III": "C",
-        "IV": "D\u266D",
-        "V": "E\u266D",
-        "VI": "F",
-        "VII": "G"
-      };
-      
-      let currentKey = maps["C"];
-      
-      scheduler.addEventListener("key", (e) => {
-        currentKey = maps[e.detail.item.key.root];
-      });
-      
-      scheduler.addEventListener("chord", (e) => {
-        document.querySelector("#current-chord h1").innerHTML = `${currentKey[e.detail.item.chord.interval]}<span class="small">${e.detail.item.chord.quality || ""}</span>${currentKey[e.detail.item.chord.bass] || ""}`;
-      });
+      const prompt = new Prompts(scheduler);
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
-        
-        let start = new CustomEvent("start");
+        scheduler.audioContext = new AudioContext();
+        let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
         scheduler.dispatchEvent(start);
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
-        let stop = new CustomEvent("scheduleItem", { detail: { item: {
-              type: "command",
-              command: "stop"
-            }
-          }
-        });
+        let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
         scheduler.dispatchEvent(stop);
       });
       
       document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
-        let newTempo = e.target.value;
-        let evt = new CustomEvent("command", { detail: { item: {
-              command: "tempo",
-              tempo: {
-                beatTime: e.detail
-              }
-            }
-          }
-        });
-        scheduler.dispatchEvent(evt);
+        let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TEMPO});
+        item.payload = document.querySelector('wbhb-adjust-tempo').tempo;
+        scheduler.scheduleItem(item);
       });
       
-      // document.querySelectorAll('.button.command').forEach((node) => {
-      //   node.addEventListener('click', (e) => {
-      //     const item = JSON.parse(e.target.getAttribute('item'));
-          
-      //     let evt = new CustomEvent("command", { detail: { item
-      //       }
-      //     });
-      //     scheduler.dispatchEvent(evt);
-      //   });
-      // });
+      document.querySelectorAll('wbhb-button[type="Time"]').forEach((node) => {
+        const parts = node.getAttribute('name').split('/');
+        const upper = Number.parseInt(parts[0], 10);
+        const lower = Number.parseInt(parts[1], 10);
+        if (upper && lower) {
+          node.addEventListener('click', () => {
+            let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TIME_SIGNATURE});
+            item.payload = new TimeSignature(upper, lower);
+            scheduler.dispatchEvent(item);
+          });
+        }
+      });
+      
+      document.querySelectorAll('wbhb-button[type="Prompt"]').forEach((node) => {
+        const name = node.getAttribute('name');
+        node.addEventListener('click', () => {
+          let item = new PromptItem({timings: {immediate: true}, count: true});
+          item.add(name);
+          scheduler.dispatchEvent(item);
+        });
+      });
       
       // document.querySelectorAll('.cueSong').forEach((node) => {
       //   node.addEventListener('click', (e) => {
@@ -315,93 +241,76 @@
       //   });
       // });
       
-      // document.querySelectorAll('.cueTrack').forEach((node) => {
-      //   node.addEventListener('click', (e) => {
-      //     let name = e.target.attributes['name'].value;
-      //     let count = false;
-      //     if (e.target.attributes['count']) {
-      //       count = true;
+      // scheduler.addEventListener("itemsUpdated", (e) => {
+      //   const scheduleContainer = document.querySelector(".schedule-wrapper");
+      //   let innerHTML = "";
+      //   const items = e.detail.item.items;
+      //   const overlay = scheduleContainer.removeChild(document.querySelector(".schedule-wrapper > .overlay"));
+        
+      //   let itemText = (item) => {
+      //     switch (item.type) {
+      //       case "command":
+      //         return item.command;
+      //       case "prompt":
+      //         return item.prompt.name;
+      //       case "section":
+      //         return item.section.name;
+      //       case "chord":
+      //         return `${currentKey[item.chord.interval]}${item.chord.quality || ""}${currentKey[item.chord.bass] || ""}`;
+      //       default:
+      //         return "";
       //     }
-      //     scheduler.dispatchEvent(new CustomEvent("prompt", {detail: { item: {
-      //       type: "prompt",
-      //       prompt: {
-      //         name
-      //       },
-      //       count
-      //     }}}));
+      //   };
+        
+      //   items.forEach((item) => {
+      //     const length = item.length ? (item.length.bar ? item.length.bar : 1) : 1;
+      //     const startColumn = item.bar + 1;
+      //     const endColumn = startColumn + length;
+          
+      //     innerHTML = `${innerHTML}
+      //       <div class="schedule-item ${item.type}" style="grid-column-start: ${startColumn}; grid-column-end: ${endColumn}" id="${item.id}" draggable="true"="true">${itemText(item)}</div>
+      //     `;
+      //   });
+        
+      //   scheduleContainer.innerHTML = innerHTML;
+        
+      //   scheduleContainer.appendChild(overlay);
+        
+      //   document.querySelectorAll('.schedule-item').forEach((node) => {
+      //     node.addEventListener('dragstart', (e) => {
+      //       node.style.zIndex = 3;
+      //       document.querySelector(".schedule-wrapper > .overlay").classList.remove("hidden");
+      //     });
+          
+      //     node.addEventListener('drag', (e) => {
+            
+      //     });
+          
+      //     node.addEventListener('dragend', (e) => {
+      //       node.style.zIndex = 1;
+      //       document.querySelector(".schedule-wrapper > .overlay").classList.add("hidden");
+      //     });
       //   });
       // });
       
-      scheduler.addEventListener("itemsUpdated", (e) => {
-        const scheduleContainer = document.querySelector(".schedule-wrapper");
-        let innerHTML = "";
-        const items = e.detail.item.items;
-        const overlay = scheduleContainer.removeChild(document.querySelector(".schedule-wrapper > .overlay"));
-        
-        let itemText = (item) => {
-          switch (item.type) {
-            case "command":
-              return item.command;
-            case "prompt":
-              return item.prompt.name;
-            case "section":
-              return item.section.name;
-            case "chord":
-              return `${currentKey[item.chord.interval]}${item.chord.quality || ""}${currentKey[item.chord.bass] || ""}`;
-            default:
-              return "";
-          }
-        };
-        
-        items.forEach((item) => {
-          const length = item.length ? (item.length.bar ? item.length.bar : 1) : 1;
-          const startColumn = item.bar + 1;
-          const endColumn = startColumn + length;
-          
-          innerHTML = `${innerHTML}
-            <div class="schedule-item ${item.type}" style="grid-column-start: ${startColumn}; grid-column-end: ${endColumn}" id="${item.id}" draggable="true"="true">${itemText(item)}</div>
-          `;
-        });
-        
-        scheduleContainer.innerHTML = innerHTML;
-        
-        scheduleContainer.appendChild(overlay);
-        
-        document.querySelectorAll('.schedule-item').forEach((node) => {
-          node.addEventListener('dragstart', (e) => {
-            node.style.zIndex = 3;
-            document.querySelector(".schedule-wrapper > .overlay").classList.remove("hidden");
-          });
-          
-          node.addEventListener('drag', (e) => {
-            
-          });
-          
-          node.addEventListener('dragend', (e) => {
-            node.style.zIndex = 1;
-            document.querySelector(".schedule-wrapper > .overlay").classList.add("hidden");
-          });
-        });
-      });
+      // document.querySelectorAll(".schedule-wrapper > .overlay > .cell").forEach((node) => {
+      //   node.addEventListener('dragenter', (e) => {
+      //     node.classList.add("target");
+      //   });
+      //   node.addEventListener('dragleave', (e) => {
+      //     node.classList.remove("target");
+      //   });
+      // });
       
-      document.querySelectorAll(".schedule-wrapper > .overlay > .cell").forEach((node) => {
-        node.addEventListener('dragenter', (e) => {
-          node.classList.add("target");
-        });
-        node.addEventListener('dragleave', (e) => {
-          node.classList.remove("target");
-        });
-      });
-      
-      scheduler.addEventListener("nextBar", (e) => {
-        const scheduleContainer = document.querySelector(".schedule-wrapper");
-        const scheduleOverlay = document.querySelector(".schedule-wrapper > .overlay");
+      // scheduler.addEventListener("nextBar", (e) => {
+      //   const scheduleContainer = document.querySelector(".schedule-wrapper");
+      //   const scheduleOverlay = document.querySelector(".schedule-wrapper > .overlay");
         
-        let offset = (songSheetSequencer._currentBar - 2) * 25;
+      //   let offset = (songSheetSequencer._currentBar - 2) * 25;
         
-        scheduleContainer.style.transform = `translateX(-${offset}vmin)`;
-        scheduleOverlay.style.transform = `translateX(${offset}vmin)`;
-      });
+      //   scheduleContainer.style.transform = `translateX(-${offset}vmin)`;
+      //   scheduleOverlay.style.transform = `translateX(${offset}vmin)`;
+      // });
     </script>
   </body>
 </html>
