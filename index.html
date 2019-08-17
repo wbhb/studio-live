@@ -174,8 +174,9 @@
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
       import {Metronome} from './lib/sequencer/metronome.js';
       import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
+      import {PromptItem} from './lib/sequencer/items/PromptItem.js';
       import {TimeSignature} from './lib/util/timeSignature.js';
-      // import {Prompts, PromptSamples} from './lib/sequencer/prompts.js';
+      import {Prompts} from './lib/sequencer/prompts.js';
       // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -186,6 +187,7 @@
       
       const scheduler = new Scheduler();
       const metronome = new Metronome(scheduler);
+      const prompt = new Prompts(scheduler);
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         scheduler.audioContext = new AudioContext();
@@ -217,16 +219,14 @@
         }
       });
       
-      // document.querySelectorAll('.button.command').forEach((node) => {
-      //   node.addEventListener('click', (e) => {
-      //     const item = JSON.parse(e.target.getAttribute('item'));
-          
-      //     let evt = new CustomEvent("command", { detail: { item
-      //       }
-      //     });
-      //     scheduler.dispatchEvent(evt);
-      //   });
-      // });
+      document.querySelectorAll('wbhb-button[type="Prompt"]').forEach((node) => {
+        const name = node.getAttribute('name');
+        node.addEventListener('click', () => {
+          let item = new PromptItem({timings: {immediate: true}, count: true});
+          item.add(name);
+          scheduler.dispatchEvent(item);
+        });
+      });
       
       // document.querySelectorAll('.cueSong').forEach((node) => {
       //   node.addEventListener('click', (e) => {
@@ -238,23 +238,6 @@
       //         immediate: true
       //       }
       //     }}));
-      //   });
-      // });
-      
-      // document.querySelectorAll('.cueTrack').forEach((node) => {
-      //   node.addEventListener('click', (e) => {
-      //     let name = e.target.attributes['name'].value;
-      //     let count = false;
-      //     if (e.target.attributes['count']) {
-      //       count = true;
-      //     }
-      //     scheduler.dispatchEvent(new CustomEvent("prompt", {detail: { item: {
-      //       type: "prompt",
-      //       prompt: {
-      //         name
-      //       },
-      //       count
-      //     }}}));
       //   });
       // });
       
