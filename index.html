@@ -254,6 +254,19 @@
         });
       });
       
+      document.querySelectorAll('wbhb-button[type="Prompt"]').forEach((node) => {
+        const name = node.getAttribute('name');
+        const type = node.getAttribute('type');
+        
+        let item = new PromptItem({timings: {length: {unit: 'beat', value: 1}}});
+        node.item = item;
+        
+        node.addEventListener('click', () => {
+          let item = new ChordItem({...node.item, ...{timings: {immediate: true}}});
+          scheduler.dispatchEvent(item);
+        });
+      });
+      
       document.querySelectorAll('wbhb-chord').forEach((node) => {
         node.scheduler = scheduler;
       });
