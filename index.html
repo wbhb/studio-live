@@ -10,13 +10,16 @@
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.js'></script>
     <script type="module" src='./lib/ui/wbhb-chord.js'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.js'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer-track.js'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <style>
       
       html {
         
         --wbhb-color-yellow: #fedb00;
+        --wbhb-color-yellow-trans: #fedb0040;
         --wbhb-color-grey: #53565A;
+        --wbhb-color-grey-trans: #53565A80;
         --wbhb-color-black: #000000;
         --wbhb-color-white: #ffffff;
         --wbhb-font-heading: "Ubuntu", sans-serif;
@@ -171,7 +174,9 @@
       <wbhb-chord></wbhb-chord>
     </div>
     
-    <wbhb-sequencer></wbhb-sequencer>
+    <wbhb-sequencer filters="ChordItem PromptItem *">
+      
+    </wbhb-sequencer>
 
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
@@ -236,11 +241,15 @@
       document.querySelectorAll('wbhb-button[name="Chords"] wbhb-button:not([type="More"]):not([type="Modifier"])').forEach((node) => {
         const name = node.getAttribute('name');
         const type = node.getAttribute('type');
+        
+        let item = new ChordItem({timings: {length: {unit: 'beat', value: 1}}});
+        let chord = new Chord(name);
+        chord = chord.setQuality(type);
+        item.chord = chord;
+        node.item = item;
+        
         node.addEventListener('click', () => {
-          let item = new ChordItem({timings: {immediate: true}});
-          let chord = new Chord(name);
-          chord = chord.setQuality(type);
-          item.chord = chord;
+          let item = new ChordItem({...node.item, ...{timings: {immediate: true}}});
           scheduler.dispatchEvent(item);
         });
       });
@@ -248,80 +257,6 @@
       document.querySelectorAll('wbhb-chord').forEach((node) => {
         node.scheduler = scheduler;
       });
-      
-      // document.querySelectorAll('.cueSong').forEach((node) => {
-      //   node.addEventListener('click', (e) => {
-      //     let name = e.target.attributes['name'].value;
-          
-      //     scheduler.dispatchEvent(new CustomEvent("song", {detail: { item: {
-      //         type: "song",
-      //         song: songs[name],
-      //         immediate: true
-      //       }
-      //     }}));
-      //   });
-      // });
-      
-      // scheduler.addEventListener("itemsUpdated", (e) => {
-      //   const scheduleContainer = document.querySelector(".schedule-wrapper");
-      //   let innerHTML = "";
-      //   const items = e.detail.item.items;
-      //   const overlay = scheduleContainer.removeChild(document.querySelector(".schedule-wrapper > .overlay"));
-        
-      //   let itemText = (item) => {
-      //     switch (item.type) {
-      //       case "command":
-      //         return item.command;
-      //       case "prompt":
-      //         return item.prompt.name;
-      //       case "section":
-      //         return item.section.name;
-      //       case "chord":
-      //         return `${currentKey[item.chord.interval]}${item.chord.quality || ""}${currentKey[item.chord.bass] || ""}`;
-      //       default:
-      //         return "";
-      //     }
-      //   };
-        
-      //   items.forEach((item) => {
-      //     const length = item.length ? (item.length.bar ? item.length.bar : 1) : 1;
-      //     const startColumn = item.bar + 1;
-      //     const endColumn = startColumn + length;
-          
-      //     innerHTML = `${innerHTML}
-      //       <div class="schedule-item ${item.type}" style="grid-column-start: ${startColumn}; grid-column-end: ${endColumn}" id="${item.id}" draggable="true"="true">${itemText(item)}</div>
-      //     `;
-      //   });
-        
-      //   scheduleContainer.innerHTML = innerHTML;
-        
-      //   scheduleContainer.appendChild(overlay);
-        
-      //   document.querySelectorAll('.schedule-item').forEach((node) => {
-      //     node.addEventListener('dragstart', (e) => {
-      //       node.style.zIndex = 3;
-      //       document.querySelector(".schedule-wrapper > .overlay").classList.remove("hidden");
-      //     });
-          
-      //     node.addEventListener('drag', (e) => {
-            
-      //     });
-          
-      //     node.addEventListener('dragend', (e) => {
-      //       node.style.zIndex = 1;
-      //       document.querySelector(".schedule-wrapper > .overlay").classList.add("hidden");
-      //     });
-      //   });
-      // });
-      
-      // document.querySelectorAll(".schedule-wrapper > .overlay > .cell").forEach((node) => {
-      //   node.addEventListener('dragenter', (e) => {
-      //     node.classList.add("target");
-      //   });
-      //   node.addEventListener('dragleave', (e) => {
-      //     node.classList.remove("target");
-      //   });
-      // });
       
       // scheduler.addEventListener("nextBar", (e) => {
       //   const scheduleContainer = document.querySelector(".schedule-wrapper");
