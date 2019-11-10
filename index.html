@@ -274,7 +274,6 @@
       });
       
       scheduler.addEventListener("nextBar", (e) => {
-        console.log(`bar: ${e.barNumber}`);
         const sequencer = document.querySelector("wbhb-sequencer");
         
         sequencer.currentBar = e.barNumber;
