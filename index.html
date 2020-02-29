@@ -199,6 +199,8 @@
       const metronome = new Metronome(scheduler);
       const prompt = new Prompts(scheduler);
       
+      document.querySelector('wbhb-sequencer').scheduler = scheduler;
+      
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         scheduler.audioContext = new AudioContext();
         let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
@@ -271,15 +273,12 @@
         node.scheduler = scheduler;
       });
       
-      // scheduler.addEventListener("nextBar", (e) => {
-      //   const scheduleContainer = document.querySelector(".schedule-wrapper");
-      //   const scheduleOverlay = document.querySelector(".schedule-wrapper > .overlay");
+      scheduler.addEventListener("nextBar", (e) => {
         
-      //   let offset = (songSheetSequencer._currentBar - 2) * 25;
+        const sequencer = document.querySelector("wbhb-sequencer");
         
-      //   scheduleContainer.style.transform = `translateX(-${offset}vmin)`;
-      //   scheduleOverlay.style.transform = `translateX(${offset}vmin)`;
-      // });
+        sequencer.currentBar = e.barNumber;
+      });
     </script>
   </body>
 </html>
