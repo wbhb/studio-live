@@ -202,6 +202,17 @@
       
       document.querySelector('wbhb-sequencer').scheduler = scheduler;
       
+      document.querySelector('wbhb-sequencer').addEventListener('control-play', () => {
+        scheduler.audioContext = new AudioContext();
+        let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
+        scheduler.dispatchEvent(start);
+      });
+      
+      document.querySelector('wbhb-sequencer').addEventListener('control-stop', () => {
+        let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
+        scheduler.dispatchEvent(stop);
+      });
+      
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         scheduler.audioContext = new AudioContext();
         let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
