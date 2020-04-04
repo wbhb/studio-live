@@ -153,6 +153,22 @@
         </wbhb-button>
       </wbhb-button>
       
+      <wbhb-button type="" name="Drums">
+        <wbhb-button type="Drum Kit" name="CarbonMonoxide" href="http://ccmixter.org/files/carbonmonoxidemusic/23425">
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/ClosedHat.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/CrashCymbal.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/FloorTom.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/Kick.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/MidHat.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/MidTom.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/OpenHat1.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/OpenHat2.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/RideCymbal.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/Sample1.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/Sample2.wav" draggable="true"></wbhb-button>
+        </wbhb-button>
+      </wbhb-button>
+      
       <wbhb-button type="" name="Chords">
         <wbhb-button type="Major" name="Root" draggable="true"></wbhb-button>
         <wbhb-button type="Major" name="Forth" draggable="true"></wbhb-button>
@@ -276,7 +292,19 @@
         node.item = item;
         
         node.addEventListener('click', () => {
-          let item = new ChordItem({...node.item, ...{timings: {immediate: true}}});
+          let item = new PromptItem({...node.item, ...{timings: {immediate: true}}});
+          scheduler.dispatchEvent(item);
+        });
+      });
+      
+      document.querySelectorAll('wbhb-button[type="Hit"]').forEach((node) => {
+        const name = node.getAttribute('name');
+        
+        let item = new AudioItem({timings: {length: {unit: 'beat', value: 1}}});
+        node.item = item;
+        
+        node.addEventListener('click', () => {
+          let item = new AudioItem({...node.item, ...{timings: {immediate: true}}});
           scheduler.dispatchEvent(item);
         });
       });
