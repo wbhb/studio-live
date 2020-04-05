@@ -155,17 +155,17 @@
       
       <wbhb-button type="" name="Drums">
         <wbhb-button type="Drum Kit" name="CarbonMonoxide" href="http://ccmixter.org/files/carbonmonoxidemusic/23425">
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/ClosedHat.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/CrashCymbal.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/FloorTom.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/Kick.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/MidHat.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/MidTom.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/OpenHat1.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/OpenHat2.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/RideCymbal.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/Sample1.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="" href="static/audio/drums/CO/Sample2.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Closed Hat" href="static/audio/drums/CO/ClosedHat.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Crash" href="static/audio/drums/CO/CrashCymbal.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Floor Tom" href="static/audio/drums/CO/FloorTom.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Kick" href="static/audio/drums/CO/Kick.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Mid Hat" href="static/audio/drums/CO/MidHat.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Mid Tom" href="static/audio/drums/CO/MidTom.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Open Hat 1" href="static/audio/drums/CO/OpenHat1.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Open Hat 2" href="static/audio/drums/CO/OpenHat2.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Ride" href="static/audio/drums/CO/RideCymbal.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Sample 1" href="static/audio/drums/CO/Sample1.wav" draggable="true"></wbhb-button>
+          <wbhb-button type="Hit" name="Sample 2" href="static/audio/drums/CO/Sample2.wav" draggable="true"></wbhb-button>
         </wbhb-button>
       </wbhb-button>
       
@@ -188,7 +188,7 @@
         </wbhb-button>
       </wbhb-button>
       
-      <wbhb-chord></wbhb-chord>
+      <!--<wbhb-chord></wbhb-chord>-->
     </div>
     
     <wbhb-sequencer filters="ChordItem PromptItem *">
@@ -200,9 +200,11 @@
       import {Metronome} from './lib/sequencer/metronome.js';
       import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
       import {PromptItem} from './lib/sequencer/items/PromptItem.js';
+      import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.js';
       import {ChordItem} from './lib/sequencer/items/ChordItem.js';
       import {TimeSignature} from './lib/util/timeSignature.js';
       import {Prompts} from './lib/sequencer/prompts.js';
+      import {Drums} from './lib/sequencer/drums.js';
       import {Chord} from './lib/util/chords.js';
       // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
@@ -215,6 +217,7 @@
       const scheduler = new Scheduler();
       const metronome = new Metronome(scheduler);
       const prompt = new Prompts(scheduler);
+      const drums = new Drums(scheduler);
       
       document.querySelector('wbhb-sequencer').scheduler = scheduler;
       
@@ -300,11 +303,13 @@
       document.querySelectorAll('wbhb-button[type="Hit"]').forEach((node) => {
         const name = node.getAttribute('name');
         
-        let item = new AudioItem({timings: {length: {unit: 'beat', value: 1}}});
+        let item = new CachedAudioItem({cacheKey: name, timings: {length: {unit: 'beat', value: 1}}});
         node.item = item;
         
         node.addEventListener('click', () => {
-          let item = new AudioItem({...node.item, ...{timings: {immediate: true}}});
+          let item = new CachedAudioItem({...node.item, ...{cacheKey: node.item.cacheKey, timings: {immediate: true}}});
+          console.log(item);
+          console.log(node.item);
           scheduler.dispatchEvent(item);
         });
       });
