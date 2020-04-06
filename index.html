@@ -219,18 +219,23 @@
       const prompt = new Prompts(scheduler);
       const drums = new Drums(scheduler);
       
-      document.querySelector('wbhb-sequencer').scheduler = scheduler;
+      const sequencerEl = document.querySelector('wbhb-sequencer');
+      sequencerEl.scheduler = scheduler;
       
-      document.querySelector('wbhb-sequencer').addEventListener('control-play', () => {
+      prompt.items = sequencerEl.items;
+      drums.items = sequencerEl.items;
+      
+      sequencerEl.addEventListener('control-play', () => {
         scheduler.audioContext = new AudioContext();
         let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
         scheduler.dispatchEvent(start);
       });
       
-      document.querySelector('wbhb-sequencer').addEventListener('control-stop', () => {
+      sequencerEl.addEventListener('control-stop', () => {
         let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
         scheduler.dispatchEvent(stop);
       });
+      
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         scheduler.audioContext = new AudioContext();
@@ -308,8 +313,6 @@
         
         node.addEventListener('click', () => {
           let item = new CachedAudioItem({...node.item, ...{cacheKey: node.item.cacheKey, timings: {immediate: true}}});
-          console.log(item);
-          console.log(node.item);
           scheduler.dispatchEvent(item);
         });
       });
