@@ -83,6 +83,9 @@
       <wbhb-button name="Start"></wbhb-button>
       <wbhb-button name="Stop" draggable="true"></wbhb-button>
       
+      
+      <wbhb-button type="connect" name="MIDI"></wbhb-button>
+      
       <wbhb-button name="Time" type="Preset">
         <wbhb-button type="Time" name="2/2" draggable="true"></wbhb-button>
         <wbhb-button type="Time" name="?/4">
@@ -206,6 +209,8 @@
       import {Prompts} from './lib/sequencer/prompts.js';
       import {Drums} from './lib/sequencer/drums.js';
       import {Chord} from './lib/util/chords.js';
+      import {MIDI} from './lib/util/midi.js';
+      import {Synth} from './lib/audio/synth.js';
       // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -326,6 +331,71 @@
         const sequencer = document.querySelector("wbhb-sequencer");
         
         sequencer.currentBar = e.barNumber;
+      });
+      
+      document.querySelectorAll('wbhb-button[name="MIDI"]').forEach((node) => {
+        
+        const midiSetup = () => {
+          const midiContext = new MIDI();
+          
+          const synth = new Synth(scheduler.audioContext);
+          
+          node.removeEventListener('click', midiSetup);
+          
+          midiContext.addEventListener('midi', (e) => {
+            let item;
+            if (e.command === "Note On" && e.channel === 9) {
+              switch (e.data[0]) {
+                case 36:
+                  item = new CachedAudioItem({cacheKey: 'Closed Hat', timings: {immediate: true}});
+                  break;
+                case 37:
+                  item = new CachedAudioItem({cacheKey: 'Kick', timings: {immediate: true}});
+                  break;
+                case 38:
+                  item = new CachedAudioItem({cacheKey: 'Sample 1', timings: {immediate: true}});
+                  break;
+                case 39:
+                  item = new CachedAudioItem({cacheKey: 'Floor Tom', timings: {immediate: true}});
+                  break;
+                default:
+                  console.warn('Unknown note')
+              }
+              scheduler.dispatchEvent(item);
+            }
+            
+            if (e.command === "Control Change" && e.channel === 0) {
+              switch (e.data[0]) {
+                case 20:
+                  synth.attack = (127 - e.data[1]) / 127;
+                  break;
+                case 21:
+                  synth.decay = (127 - e.data[1]) / 127;
+                  break;
+                case 22:
+                  synth.sustain = (e.data[1]) / 127;
+                  break;
+                case 23:
+                  synth.release = (127 - e.data[1]) / 127;
+                  break;
+                default:
+                  console.warn('Unknown control')
+              }
+            }
+            
+            if (e.command === "Note On" && e.channel === 0) {
+              synth.start(e.data[0]);
+            }
+            
+            if (e.command === "Note Off" && e.channel === 0) {
+              synth.stop(e.data[0]);
+            }
+            
+          });
+          
+        };
+        
+        node.addEventListener('click', midiSetup);
       });
     </script>
   </body>
