@@ -211,6 +211,7 @@
       import {Drums} from './lib/sequencer/drums.js';
       import {Chord} from './lib/util/chords.js';
       import {MIDI} from './lib/util/midi.js';
+      import {MIDIRemap} from './lib/util/midiRemap.js';
       // import {Synth} from './lib/audio/synth.js';
       import {DrumKit} from './lib/instrument/DrumKit.js';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.js';
@@ -345,104 +346,116 @@
           
           node.setAttribute('disabled', '');
           
-          midiContext.addEventListener('midi-message', (e) => {
-            let item;
-            if (e.command === MIDI.Note_On && e.channel === 9) {
-              switch (e.note) {
-                case 36:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Closed Hi-hat')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                case 37:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Bass Drum 1')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                case 38:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Snare Drum 1')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                case 39:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Low Tom 1')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                default:
-                  console.warn('Unknown note')
-              }
-            } else {
-              item = new MIDIItem({
-                message: e,
-                timings: {
-                  immediate: true
+          const AlesisV25_drumRemap = new MIDIRemap([
+            {
+              "tests": [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "method",
+                  "testMode": "=",
+                  "testValue": MIDI.Channel_Voice
+                },
+                {
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 36
                 }
-              });
+              ],
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Closed Hi-hat'),
+                "outputParam": "note"
+              }
+            },
+            {
+              "tests": [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "method",
+                  "testMode": "=",
+                  "testValue": MIDI.Channel_Voice
+                },
+                {
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 37
+                }
+              ],
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Bass Drum 1'),
+                "outputParam": "note"
+              }
+            },
+            {
+              "tests": [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "method",
+                  "testMode": "=",
+                  "testValue": MIDI.Channel_Voice
+                },
+                {
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 38
+                }
+              ],
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Snare Drum 1'),
+                "outputParam": "note"
+              }
+            },
+            {
+              "tests": [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "method",
+                  "testMode": "=",
+                  "testValue": MIDI.Channel_Voice
+                },
+                {
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 39
+                }
+              ],
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Low Tom 1'),
+                "outputParam": "note"
+              }
             }
-            
+          ]);
+          
+          midiContext.addEventListener('midi-message', (e) => {
+            let item = new MIDIItem({
+              message: AlesisV25_drumRemap.remap(e.message),
+              timings: {
+                immediate: true
+              }
+            });
+          
             if (item) {
               Scheduler.GLOBAL.dispatchEvent(item);
             }
-            
-            // if (e.command === MIDI.Control_Change && e.channel === 0) {
-            //   switch (e.controllerNumber) {
-            //     case 20:
-            //       synth.attack = (127 - e.value) / 127;
-            //       break;
-            //     case 21:
-            //       synth.decay = (127 - e.value) / 127;
-            //       break;
-            //     case 22:
-            //       synth.sustain = (e.value) / 127;
-            //       break;
-            //     case 23:
-            //       synth.release = (127 - e.value) / 127;
-            //       break;
-            //     default:
-            //       console.warn('Unknown control')
-            //   }
-            // }
-            
-            // if (e.command === MIDI.Note_On && e.channel === 0) {
-            //   synth.start(e.note);
-            // }
-            
-            // if (e.command === MIDI.Note_Off && e.channel === 0) {
-            //   synth.stop(e.note);
-            // }
             
           });
           
