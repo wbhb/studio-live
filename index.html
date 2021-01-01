@@ -355,9 +355,9 @@
                   "testValue": 9
                 },
                 {
-                  "inputParam": "command",
+                  "inputParam": "method",
                   "testMode": "=",
-                  "testValue": MIDI.Note_On
+                  "testValue": MIDI.Channel_Voice
                 },
                 {
                   "inputParam": "note",
@@ -372,94 +372,75 @@
               }
             },
             {
-              tests: [
+              "tests": [
                 {
                   "inputParam": "channel",
                   "testMode": "=",
                   "testValue": 9
                 },
                 {
-                  "inputParam": "command",
+                  "inputParam": "method",
                   "testMode": "=",
-                  "testValue": MIDI.Note_On
+                  "testValue": MIDI.Channel_Voice
                 },
                 {
-                  inputParam: 'note',
-                  testMode: '=',
-                  testValue: 37
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 37
                 }
               ],
-              map: {
-                mapMode: '=',
-                mapValue: DrumKit.getNoteNumber('Bass Drum 1'),
-                outputParam: 'note'
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Bass Drum 1'),
+                "outputParam": "note"
               }
             },
             {
-              tests: [
+              "tests": [
                 {
                   "inputParam": "channel",
                   "testMode": "=",
                   "testValue": 9
                 },
                 {
-                  "inputParam": "command",
+                  "inputParam": "method",
                   "testMode": "=",
-                  "testValue": MIDI.Note_On
+                  "testValue": MIDI.Channel_Voice
                 },
                 {
-                  inputParam: 'note',
-                  testMode: '=',
-                  testValue: 38
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 38
                 }
               ],
-              map: {
-                mapMode: '=',
-                mapValue: DrumKit.getNoteNumber('Snare Drum 1'),
-                outputParam: 'note'
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Snare Drum 1'),
+                "outputParam": "note"
               }
             },
             {
-              tests: [
+              "tests": [
                 {
                   "inputParam": "channel",
                   "testMode": "=",
                   "testValue": 9
                 },
                 {
-                  "inputParam": "command",
+                  "inputParam": "method",
                   "testMode": "=",
-                  "testValue": MIDI.Note_On
+                  "testValue": MIDI.Channel_Voice
                 },
                 {
-                  inputParam: 'note',
-                  testMode: '=',
-                  testValue: 39
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 39
                 }
               ],
-              map: {
-                mapMode: '=',
-                mapValue: DrumKit.getNoteNumber('Low Tom 1'),
-                outputParam: 'note'
-              }
-            },
-            {
-              tests: [
-                {
-                  "inputParam": "channel",
-                  "testMode": "=",
-                  "testValue": 0
-                },
-                {
-                  "inputParam": "command",
-                  "testMode": "=",
-                  "testValue": MIDI.Note_On
-                }
-              ],
-              map: {
-                mapMode: '+',
-                mapValue: 12,
-                outputParam: 'note'
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Low Tom 1'),
+                "outputParam": "note"
               }
             }
           ]);
