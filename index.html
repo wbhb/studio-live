@@ -222,48 +222,46 @@
         throw new Error("WebAudio not supported");
       }
       
-      const scheduler = Scheduler.GLOBAL;
-      const metronome = new Metronome(scheduler);
-      const prompt = new Prompts(scheduler);
-      const drums = new Drums(scheduler);
+      const metronome = new Metronome();
+      const prompt = new Prompts();
+      const drums = new Drums();
       
       const kit = fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
       
       const synth = new Synth();
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
-      sequencerEl.scheduler = scheduler;
       
       prompt.items = sequencerEl.items;
       drums.items = sequencerEl.items;
       
       sequencerEl.addEventListener('control-play', () => {
-        scheduler.audioContext = new AudioContext();
+        Scheduler.GLOBAL.audioContext = new AudioContext();
         let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
-        scheduler.dispatchEvent(start);
+        Scheduler.GLOBAL.dispatchEvent(start);
       });
       
       sequencerEl.addEventListener('control-stop', () => {
         let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
-        scheduler.dispatchEvent(stop);
+        Scheduler.GLOBAL.dispatchEvent(stop);
       });
       
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
-        scheduler.audioContext = new AudioContext();
+        Scheduler.GLOBAL.audioContext = new AudioContext();
         let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
-        scheduler.dispatchEvent(start);
+        Scheduler.GLOBAL.dispatchEvent(start);
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
         let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
-        scheduler.dispatchEvent(stop);
+        Scheduler.GLOBAL.dispatchEvent(stop);
       });
       
       document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
         let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TEMPO});
         item.payload = document.querySelector('wbhb-adjust-tempo').tempo;
-        scheduler.scheduleItem(item);
+        Scheduler.GLOBAL.scheduleItem(item);
       });
       
       document.querySelectorAll('wbhb-button[type="Time"]').forEach((node) => {
@@ -274,7 +272,7 @@
           node.addEventListener('click', () => {
             let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TIME_SIGNATURE});
             item.payload = new TimeSignature(upper, lower);
-            scheduler.dispatchEvent(item);
+            Scheduler.GLOBAL.dispatchEvent(item);
           });
         }
       });
@@ -284,7 +282,7 @@
         node.addEventListener('click', () => {
           let item = new PromptItem({timings: {immediate: true}, count: true});
           item.add(name);
-          scheduler.dispatchEvent(item);
+          Scheduler.GLOBAL.dispatchEvent(item);
         });
       });
       
@@ -300,7 +298,7 @@
         
         node.addEventListener('click', () => {
           let item = new ChordItem({...node.item, ...{timings: {immediate: true}}});
-          scheduler.dispatchEvent(item);
+          Scheduler.GLOBAL.dispatchEvent(item);
         });
       });
       
@@ -313,7 +311,7 @@
         
         node.addEventListener('click', () => {
           let item = new PromptItem({...node.item, ...{timings: {immediate: true}}});
-          scheduler.dispatchEvent(item);
+          Scheduler.GLOBAL.dispatchEvent(item);
         });
       });
       
@@ -325,15 +323,11 @@
         
         node.addEventListener('click', () => {
           let item = new CachedAudioItem({...node.item, ...{cacheKey: node.item.cacheKey, timings: {immediate: true}}});
-          scheduler.dispatchEvent(item);
+          Scheduler.GLOBAL.dispatchEvent(item);
         });
       });
       
-      document.querySelectorAll('wbhb-chord').forEach((node) => {
-        node.scheduler = scheduler;
-      });
-      
-      scheduler.addEventListener("nextBar", (e) => {
+      Scheduler.GLOBAL.addEventListener("nextBar", (e) => {
         
         const sequencer = document.querySelector("wbhb-sequencer");
         
@@ -420,7 +414,7 @@
             }
             
             if (item) {
-              scheduler.dispatchEvent(item);
+              Scheduler.GLOBAL.dispatchEvent(item);
             }
             
             // if (e.command === MIDI.Control_Change && e.channel === 0) {
