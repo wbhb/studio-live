@@ -211,6 +211,7 @@
       import {Drums} from './lib/sequencer/drums.js';
       import {Chord} from './lib/util/chords.js';
       import {MIDI} from './lib/util/midi.js';
+      import {MIDIRemap} from './lib/util/midiRemap.js';
       // import {Synth} from './lib/audio/synth.js';
       import {DrumKit} from './lib/instrument/DrumKit.js';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.js';
@@ -345,68 +346,58 @@
           
           node.setAttribute('disabled', '');
           
+          const AlesisV25_drumRemap = new MIDIRemap([
+            {
+              inputParam: 'note',
+              testMode: '=',
+              testValue: 36,
+              mapMode: '=',
+              mapValue: DrumKit.getNoteNumber('Closed Hi-hat'),
+              outputParam: 'note'
+            },
+            {
+              inputParam: 'note',
+              testMode: '=',
+              testValue: 37,
+              mapMode: '=',
+              mapValue: DrumKit.getNoteNumber('Bass Drum 1'),
+              outputParam: 'note'
+            },
+            {
+              inputParam: 'note',
+              testMode: '=',
+              testValue: 38,
+              mapMode: '=',
+              mapValue: DrumKit.getNoteNumber('Snare Drum 1'),
+              outputParam: 'note'
+            },
+            {
+              inputParam: 'note',
+              testMode: '=',
+              testValue: 39,
+              mapMode: '=',
+              mapValue: DrumKit.getNoteNumber('Low Tom 1'),
+              outputParam: 'note'
+            }
+          ]);
+          
           midiContext.addEventListener('midi-message', (e) => {
             let item;
-            if (e.command === MIDI.Note_On && e.channel === 9) {
-              switch (e.note) {
-                case 36:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Closed Hi-hat')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                case 37:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Bass Drum 1')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                case 38:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Snare Drum 1')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                case 39:
-                  item = new MIDIItem({
-                    message: {
-                      ...e,
-                      ...{
-                        note: DrumKit.getNoteNumber('Low Tom 1')
-                      }
-                    },
-                    timings: {
-                      immediate: true
-                    }
-                  });
-                  break;
-                default:
-                  console.warn('Unknown note')
-              }
+            if (e.message.command === MIDI.Note_On && e.message.channel === 9) {
+              
+              console.log(e);
+              
+              item = new MIDIItem({
+                message: AlesisV25_drumRemap.remap(e.message),
+                timings: {
+                  immediate: true
+                }
+              });
+              
+              console.log(item.message);
             } else {
               item = new MIDIItem({
-                message: e,
+                message: e.message,
                 timings: {
                   immediate: true
                 }
