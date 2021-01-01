@@ -348,92 +348,133 @@
           
           const AlesisV25_drumRemap = new MIDIRemap([
             {
-              inputParam: 'note',
-              testMode: '=',
-              testValue: 36,
-              mapMode: '=',
-              mapValue: DrumKit.getNoteNumber('Closed Hi-hat'),
-              outputParam: 'note'
+              "tests": [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "command",
+                  "testMode": "=",
+                  "testValue": MIDI.Note_On
+                },
+                {
+                  "inputParam": "note",
+                  "testMode": "=",
+                  "testValue": 36
+                }
+              ],
+              "map": {
+                "mapMode": "=",
+                "mapValue": DrumKit.getNoteNumber('Closed Hi-hat'),
+                "outputParam": "note"
+              }
             },
             {
-              inputParam: 'note',
-              testMode: '=',
-              testValue: 37,
-              mapMode: '=',
-              mapValue: DrumKit.getNoteNumber('Bass Drum 1'),
-              outputParam: 'note'
+              tests: [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "command",
+                  "testMode": "=",
+                  "testValue": MIDI.Note_On
+                },
+                {
+                  inputParam: 'note',
+                  testMode: '=',
+                  testValue: 37
+                }
+              ],
+              map: {
+                mapMode: '=',
+                mapValue: DrumKit.getNoteNumber('Bass Drum 1'),
+                outputParam: 'note'
+              }
             },
             {
-              inputParam: 'note',
-              testMode: '=',
-              testValue: 38,
-              mapMode: '=',
-              mapValue: DrumKit.getNoteNumber('Snare Drum 1'),
-              outputParam: 'note'
+              tests: [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "command",
+                  "testMode": "=",
+                  "testValue": MIDI.Note_On
+                },
+                {
+                  inputParam: 'note',
+                  testMode: '=',
+                  testValue: 38
+                }
+              ],
+              map: {
+                mapMode: '=',
+                mapValue: DrumKit.getNoteNumber('Snare Drum 1'),
+                outputParam: 'note'
+              }
             },
             {
-              inputParam: 'note',
-              testMode: '=',
-              testValue: 39,
-              mapMode: '=',
-              mapValue: DrumKit.getNoteNumber('Low Tom 1'),
-              outputParam: 'note'
+              tests: [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 9
+                },
+                {
+                  "inputParam": "command",
+                  "testMode": "=",
+                  "testValue": MIDI.Note_On
+                },
+                {
+                  inputParam: 'note',
+                  testMode: '=',
+                  testValue: 39
+                }
+              ],
+              map: {
+                mapMode: '=',
+                mapValue: DrumKit.getNoteNumber('Low Tom 1'),
+                outputParam: 'note'
+              }
+            },
+            {
+              tests: [
+                {
+                  "inputParam": "channel",
+                  "testMode": "=",
+                  "testValue": 0
+                },
+                {
+                  "inputParam": "command",
+                  "testMode": "=",
+                  "testValue": MIDI.Note_On
+                }
+              ],
+              map: {
+                mapMode: '+',
+                mapValue: 12,
+                outputParam: 'note'
+              }
             }
           ]);
           
           midiContext.addEventListener('midi-message', (e) => {
-            let item;
-            if (e.message.command === MIDI.Note_On && e.message.channel === 9) {
-              
-              console.log(e);
-              
-              item = new MIDIItem({
-                message: AlesisV25_drumRemap.remap(e.message),
-                timings: {
-                  immediate: true
-                }
-              });
-              
-              console.log(item.message);
-            } else {
-              item = new MIDIItem({
-                message: e.message,
-                timings: {
-                  immediate: true
-                }
-              });
-            }
-            
+            let item = new MIDIItem({
+              message: AlesisV25_drumRemap.remap(e.message),
+              timings: {
+                immediate: true
+              }
+            });
+          
             if (item) {
               Scheduler.GLOBAL.dispatchEvent(item);
             }
-            
-            // if (e.command === MIDI.Control_Change && e.channel === 0) {
-            //   switch (e.controllerNumber) {
-            //     case 20:
-            //       synth.attack = (127 - e.value) / 127;
-            //       break;
-            //     case 21:
-            //       synth.decay = (127 - e.value) / 127;
-            //       break;
-            //     case 22:
-            //       synth.sustain = (e.value) / 127;
-            //       break;
-            //     case 23:
-            //       synth.release = (127 - e.value) / 127;
-            //       break;
-            //     default:
-            //       console.warn('Unknown control')
-            //   }
-            // }
-            
-            // if (e.command === MIDI.Note_On && e.channel === 0) {
-            //   synth.start(e.note);
-            // }
-            
-            // if (e.command === MIDI.Note_Off && e.channel === 0) {
-            //   synth.stop(e.note);
-            // }
             
           });
           
