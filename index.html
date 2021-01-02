@@ -201,6 +201,7 @@
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
       import {Metronome} from './lib/sequencer/metronome.js';
+      import {SequencerItem} from './lib/sequencer/items/SequencerItem.js';
       import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
       import {PromptItem} from './lib/sequencer/items/PromptItem.js';
       import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.js';
@@ -209,10 +210,11 @@
       import {TimeSignature} from './lib/util/timeSignature.js';
       import {Prompts} from './lib/sequencer/prompts.js';
       import {Drums} from './lib/sequencer/drums.js';
+      import {MIDISequencer} from './lib/sequencer/MIDISequencer.js';
       import {Chord} from './lib/util/chords.js';
+      import {Length} from './lib/util/length.js';
       import {MIDI} from './lib/util/midi.js';
       import {MIDIRemap} from './lib/util/midiRemap.js';
-      // import {Synth} from './lib/audio/synth.js';
       import {DrumKit} from './lib/instrument/DrumKit.js';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.js';
       // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
@@ -226,10 +228,246 @@
       const metronome = new Metronome();
       const prompt = new Prompts();
       const drums = new Drums();
+      const midiSequencer = new MIDISequencer();
       
       const kit = fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
       
       const synth = new Synth();
+      
+      const kick = {
+        channel: 9,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_On,
+        note: 36,
+        velocity: 127
+      };
+      
+      const drumBeats = [
+        new MIDIItem({
+          message: kick,
+          timings: {
+            offset: new Length(0, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: kick,
+          timings: {
+            offset: new Length(1, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: kick,
+          timings: {
+            offset: new Length(2.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: kick,
+          timings: {
+            offset: new Length(3, Length.units.beat)
+          }
+        })
+      ];
+      
+      const C3_on = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_On,
+        note: 36,
+        velocity: 127
+      };
+      
+      const C3_off = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_Off,
+        note: 36,
+        velocity: 127
+      };
+      
+      const Cs3_on = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_On,
+        note: 37,
+        velocity: 127
+      };
+      
+      const Cs3_off = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_Off,
+        note: 37,
+        velocity: 127
+      };
+      
+      const B3_on = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_On,
+        note: 35,
+        velocity: 127
+      };
+      
+      const B3_off = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_Off,
+        note: 35,
+        velocity: 127
+      };
+      
+      const Bb3_on = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_On,
+        note: 34,
+        velocity: 127
+      };
+      
+      const Bb3_off = {
+        channel: 0,
+        method: MIDI.Channel_Voice,
+        command: MIDI.Note_Off,
+        note: 34,
+        velocity: 127
+      };
+      
+      const synthEven = [
+        new MIDIItem({
+          message: C3_on,
+          timings: {
+            offset: new Length(0, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_off,
+          timings: {
+            offset: new Length(1.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_on,
+          timings: {
+            offset: new Length(1.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_off,
+          timings: {
+            offset: new Length(2, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_on,
+          timings: {
+            offset: new Length(2, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_off,
+          timings: {
+            offset: new Length(2.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Bb3_on,
+          timings: {
+            offset: new Length(2.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Bb3_off,
+          timings: {
+            offset: new Length(3.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Bb3_on,
+          timings: {
+            offset: new Length(3.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Bb3_off,
+          timings: {
+            offset: new Length(4, Length.units.beat)
+          }
+        })
+      ];
+      
+      const synthOdd = [
+        new MIDIItem({
+          message: C3_on,
+          timings: {
+            offset: new Length(0, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_off,
+          timings: {
+            offset: new Length(1.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_on,
+          timings: {
+            offset: new Length(1.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_off,
+          timings: {
+            offset: new Length(2, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_on,
+          timings: {
+            offset: new Length(2, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: C3_off,
+          timings: {
+            offset: new Length(2.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Cs3_on,
+          timings: {
+            offset: new Length(2.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Cs3_off,
+          timings: {
+            offset: new Length(3.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Cs3_on,
+          timings: {
+            offset: new Length(3.5, Length.units.beat)
+          }
+        }),
+        new MIDIItem({
+          message: Cs3_off,
+          timings: {
+            offset: new Length(4, Length.units.beat)
+          }
+        })
+      ];
+      
+      for (let i = 0; i < 24; i++) {
+        midiSequencer.items[i] = [];
+        midiSequencer.items[i].push(...drumBeats.map(item => SequencerItem.create(item.toJSON())));
+        if (i%2 == 0) {
+          midiSequencer.items[i].push(...synthEven.map(item => SequencerItem.create(item.toJSON())));
+        } else {
+          midiSequencer.items[i].push(...synthOdd.map(item => SequencerItem.create(item.toJSON())));
+        }
+      }
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
@@ -454,7 +692,7 @@
             });
           
             if (item) {
-              Scheduler.GLOBAL.dispatchEvent(item);
+              Scheduler.GLOBAL.scheduleItem(item);
             }
             
           });
