@@ -474,27 +474,30 @@
       prompt.items = sequencerEl.items;
       drums.items = sequencerEl.items;
       
-      sequencerEl.addEventListener('control-play', () => {
-        Scheduler.GLOBAL.audioContext = new AudioContext();
-        let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
-        Scheduler.GLOBAL.dispatchEvent(start);
-      });
+      // sequencerEl.addEventListener('control-play', () => {
+      //   Scheduler.GLOBAL.audioContext = new AudioContext();
+      //   let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
+      //   Scheduler.GLOBAL.dispatchEvent(start);
+      // });
       
-      sequencerEl.addEventListener('control-stop', () => {
-        let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
-        Scheduler.GLOBAL.dispatchEvent(stop);
-      });
+      // sequencerEl.addEventListener('control-stop', () => {
+      //   let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
+      //   Scheduler.GLOBAL.scheduleItem(stop);
+      // });
       
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
-        Scheduler.GLOBAL.audioContext = new AudioContext();
-        let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
-        Scheduler.GLOBAL.dispatchEvent(start);
+        if (!Scheduler.GLOBAL.audioContext) {
+          Scheduler.GLOBAL.audioContext = new AudioContext();
+        }
+        // let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
+        // Scheduler.GLOBAL.dispatchEvent(start);
+        Scheduler.GLOBAL.start();
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
         let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
-        Scheduler.GLOBAL.dispatchEvent(stop);
+        Scheduler.GLOBAL.scheduleItem(stop);
       });
       
       document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
