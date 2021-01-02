@@ -209,6 +209,7 @@
       import {TimeSignature} from './lib/util/timeSignature.js';
       import {Prompts} from './lib/sequencer/prompts.js';
       import {Drums} from './lib/sequencer/drums.js';
+      import {MIDISequencer} from './lib/sequencer/MIDISequencer.js';
       import {Chord} from './lib/util/chords.js';
       import {MIDI} from './lib/util/midi.js';
       import {MIDIRemap} from './lib/util/midiRemap.js';
@@ -226,6 +227,7 @@
       const metronome = new Metronome();
       const prompt = new Prompts();
       const drums = new Drums();
+      const midiSequencer = new MIDISequencer();
       
       const kit = fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
       
