@@ -459,7 +459,7 @@
         })
       ];
       
-      for (let i = 0; i < 24; i++) {
+      for (let i = 1; i <= 24; i++) {
         midiSequencer.items[i] = [];
         midiSequencer.items[i].push(...drumBeats.map(item => SequencerItem.create(item.toJSON())));
         if (i%2 == 0) {
