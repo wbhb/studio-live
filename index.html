@@ -201,7 +201,9 @@
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
       import {Metronome} from './lib/sequencer/metronome.js';
+      import {ItemDB} from './lib/sequencer/items/ItemDB.js';
       import {SequencerItem} from './lib/sequencer/items/SequencerItem.js';
+      import {SectionItem} from './lib/sequencer/items/SectionItem.js';
       import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
       import {PromptItem} from './lib/sequencer/items/PromptItem.js';
       import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.js';
@@ -242,32 +244,38 @@
         velocity: 127
       };
       
-      const drumBeats = [
-        new MIDIItem({
-          message: kick,
-          timings: {
-            offset: new Length(0, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: kick,
-          timings: {
-            offset: new Length(1, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: kick,
-          timings: {
-            offset: new Length(2.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: kick,
-          timings: {
-            offset: new Length(3, Length.units.beat)
-          }
-        })
-      ];
+      const k1 = await ItemDB.set(new MIDIItem({
+        message: kick,
+        timings: {
+          offset: new Length(0, Length.units.beat)
+        }
+      }));
+      const k2 = await ItemDB.set(new MIDIItem({
+        message: kick,
+        timings: {
+          offset: new Length(1, Length.units.beat)
+        }
+      }));
+      const k3 = await ItemDB.set(new MIDIItem({
+        message: kick,
+        timings: {
+          offset: new Length(2.5, Length.units.beat)
+        }
+      }));
+      const k4 = await ItemDB.set(new MIDIItem({
+        message: kick,
+        timings: {
+          offset: new Length(3, Length.units.beat)
+        }
+      }));
+      
+      const kickBar = await ItemDB.set(new SectionItem({
+        itemIds: [[k1, k2, k3, k4], [k1, k3, k4]],
+        repeats: 0,
+        timings: {
+          offset: new Length(0, Length.units.beat)
+        }
+      }));
       
       const C3_on = {
         channel: 0,
@@ -333,141 +341,105 @@
         velocity: 127
       };
       
-      const synthEven = [
-        new MIDIItem({
-          message: C3_on,
-          timings: {
-            offset: new Length(0, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_off,
-          timings: {
-            offset: new Length(1.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_on,
-          timings: {
-            offset: new Length(1.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_off,
-          timings: {
-            offset: new Length(2, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_on,
-          timings: {
-            offset: new Length(2, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_off,
-          timings: {
-            offset: new Length(2.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Bb3_on,
-          timings: {
-            offset: new Length(2.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Bb3_off,
-          timings: {
-            offset: new Length(3.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Bb3_on,
-          timings: {
-            offset: new Length(3.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Bb3_off,
-          timings: {
-            offset: new Length(4, Length.units.beat)
-          }
-        })
-      ];
-      
-      const synthOdd = [
-        new MIDIItem({
-          message: C3_on,
-          timings: {
-            offset: new Length(0, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_off,
-          timings: {
-            offset: new Length(1.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_on,
-          timings: {
-            offset: new Length(1.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_off,
-          timings: {
-            offset: new Length(2, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_on,
-          timings: {
-            offset: new Length(2, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: C3_off,
-          timings: {
-            offset: new Length(2.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Cs3_on,
-          timings: {
-            offset: new Length(2.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Cs3_off,
-          timings: {
-            offset: new Length(3.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Cs3_on,
-          timings: {
-            offset: new Length(3.5, Length.units.beat)
-          }
-        }),
-        new MIDIItem({
-          message: Cs3_off,
-          timings: {
-            offset: new Length(4, Length.units.beat)
-          }
-        })
-      ];
-      
-      for (let i = 1; i <= 24; i++) {
-        midiSequencer.items[i] = [];
-        midiSequencer.items[i].push(...drumBeats.map(item => SequencerItem.create(item.toJSON())));
-        if (i%2 == 0) {
-          midiSequencer.items[i].push(...synthEven.map(item => SequencerItem.create(item.toJSON())));
-        } else {
-          midiSequencer.items[i].push(...synthOdd.map(item => SequencerItem.create(item.toJSON())));
+      const s1n = await ItemDB.set(new MIDIItem({
+        message: C3_on,
+        timings: {
+          offset: new Length(0, Length.units.beat)
         }
-      }
+      }));
+      const s1f = await ItemDB.set(new MIDIItem({
+        message: C3_off,
+        timings: {
+          offset: new Length(1.4, Length.units.beat)
+        }
+      }));
+      const s2n = await ItemDB.set(new MIDIItem({
+        message: C3_on,
+        timings: {
+          offset: new Length(1.5, Length.units.beat)
+        }
+      }));
+      const s2f = await ItemDB.set(new MIDIItem({
+        message: C3_off,
+        timings: {
+          offset: new Length(1.9, Length.units.beat)
+        }
+      }));
+      const s3n = await ItemDB.set(new MIDIItem({
+        message: C3_on,
+        timings: {
+          offset: new Length(2, Length.units.beat)
+        }
+      }));
+      const s3f = await ItemDB.set(new MIDIItem({
+        message: C3_off,
+        timings: {
+          offset: new Length(2.4, Length.units.beat)
+        }
+      }));
+      
+      const s4an = await ItemDB.set(new MIDIItem({
+        message: Bb3_on,
+        timings: {
+          offset: new Length(2.5, Length.units.beat)
+        }
+      }));
+      const s4af = await ItemDB.set(new MIDIItem({
+        message: Bb3_off,
+        timings: {
+          offset: new Length(3.4, Length.units.beat)
+        }
+      }));
+      const s5an = await ItemDB.set(new MIDIItem({
+        message: Bb3_on,
+        timings: {
+          offset: new Length(3.5, Length.units.beat)
+        }
+      }));
+      const s5af = await ItemDB.set(new MIDIItem({
+        message: Bb3_off,
+        timings: {
+          offset: new Length(3.9, Length.units.beat)
+        }
+      }));
+      
+      const s4bn = await ItemDB.set(new MIDIItem({
+        message: Cs3_on,
+        timings: {
+          offset: new Length(2.5, Length.units.beat)
+        }
+      }));
+      const s4bf = await ItemDB.set(new MIDIItem({
+        message: Cs3_off,
+        timings: {
+          offset: new Length(3.4, Length.units.beat)
+        }
+      }));
+      const s5bn = await ItemDB.set(new MIDIItem({
+        message: Cs3_on,
+        timings: {
+          offset: new Length(3.5, Length.units.beat)
+        }
+      }));
+      const s5bf = await ItemDB.set(new MIDIItem({
+        message: Cs3_off,
+        timings: {
+          offset: new Length(3.9, Length.units.beat)
+        }
+      }));
+      
+      const synthLine = await ItemDB.set(new SectionItem({
+        itemIds: [
+          [s1n, s1f, s2n, s2f, s3n, s3f, s4an, s4af, s5an, s5af],
+          [s1n, s1f, s2n, s2f, s3n, s3f, s4bn, s4bf, s5bn, s5bf]
+        ],
+        repeats: 0,
+        timings: {
+          offset: new Length(0, Length.units.beat)
+        }
+      }));
+      
+      midiSequencer.items = [[kickBar, synthLine]];
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
