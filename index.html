@@ -227,12 +227,20 @@
         throw new Error("WebAudio not supported");
       }
       
+      console.log(0);
+      
       const metronome = new Metronome();
       const prompt = new Prompts();
       const drums = new Drums();
       const midiSequencer = new MIDISequencer();
       
       const kit = fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
+      
+      console.log(1);
+      
+      const metronomeInstrument = fetch('static/audio/drums/Metronome/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = -1; return kit}).catch('Error creating metronome');
+      
+      console.log(2);
       
       const synth = new Synth();
       
