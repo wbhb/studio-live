@@ -6,11 +6,11 @@
     
     <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
     
-    <script type="module" src='./lib/ui/wbhb-button.js'></script>
-    <script type="module" src='./lib/ui/wbhb-adjust-tempo.js'></script>
-    <script type="module" src='./lib/ui/wbhb-chord.js'></script>
-    <script type="module" src='./lib/ui/wbhb-sequencer.js'></script>
-    <script type="module" src='./lib/ui/wbhb-sequencer-track.js'></script>
+    <script type="module" src='./lib/ui/wbhb-button.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-adjust-tempo.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-chord.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -199,26 +199,26 @@
     </wbhb-sequencer>
 
     <script type="module">
-      import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.js';
-      import {Metronome} from './lib/sequencer/metronome.js';
-      import {ItemDB} from './lib/sequencer/items/ItemDB.js';
-      import {SequencerItem} from './lib/sequencer/items/SequencerItem.js';
-      import {SectionItem} from './lib/sequencer/items/SectionItem.js';
-      import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.js';
-      import {PromptItem} from './lib/sequencer/items/PromptItem.js';
-      import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.js';
-      import {ChordItem} from './lib/sequencer/items/ChordItem.js';
-      import {MIDIItem} from './lib/sequencer/items/MIDIItem.js';
-      import {TimeSignature} from './lib/util/timeSignature.js';
-      import {Sequencer} from './lib/sequencer/sequencer.js';
-      import {MIDISequencer} from './lib/sequencer/MIDISequencer.js';
-      import {Chord} from './lib/util/chords.js';
-      import {Length} from './lib/util/length.js';
-      import {MIDI} from './lib/util/midi.js';
-      import {MIDIRemap} from './lib/util/midiRemap.js';
-      import {DrumKit} from './lib/instrument/DrumKit.js';
-      import {Prompts} from './lib/instrument/Prompts.js';
-      import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.js';
+      import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
+      import {Metronome} from './lib/sequencer/metronome.mjs';
+      import {ItemDB} from './lib/sequencer/items/ItemDB.mjs';
+      import {SequencerItem} from './lib/sequencer/items/SequencerItem.mjs';
+      import {SectionItem} from './lib/sequencer/items/SectionItem.mjs';
+      import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.mjs';
+      import {PromptItem} from './lib/sequencer/items/PromptItem.mjs';
+      import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.mjs';
+      import {ChordItem} from './lib/sequencer/items/ChordItem.mjs';
+      import {MIDIItem} from './lib/sequencer/items/MIDIItem.mjs';
+      import {TimeSignature} from './lib/util/timeSignature.mjs';
+      import {Sequencer} from './lib/sequencer/sequencer.mjs';
+      import {MIDISequencer} from './lib/sequencer/MIDISequencer.mjs';
+      import {Chord} from './lib/util/chords.mjs';
+      import {Length} from './lib/util/length.mjs';
+      import {MIDI} from './lib/util/midi.mjs';
+      import {MIDIRemap} from './lib/util/midiRemap.mjs';
+      import {DrumKit} from './lib/instrument/DrumKit.mjs';
+      import {Prompts} from './lib/instrument/Prompts.mjs';
+      import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
