@@ -13,6 +13,9 @@
     <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></script>
+    
     <style>
       
       html {
@@ -686,6 +689,15 @@
         
         node.addEventListener('click', midiSetup);
       });
+    </script>
+    
+    <script type="module">
+      // TODO: Replace the following with your app's Firebase project configuration
+      var firebaseConfig = {
+        // ...
+      };
+
+      firebase.initializeApp(firebaseConfig);
     </script>
   </body>
 </html>

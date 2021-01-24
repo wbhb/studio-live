@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title>WBHB Studio Live : Not Found</title>
+    
+    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
+    
+    <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
+    
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    
+    <style>
+      
+      html {
+        
+        --wbhb-color-yellow: #fedb00;
+        --wbhb-color-yellow-trans: #fedb0040;
+        --wbhb-color-grey: #53565A;
+        --wbhb-color-grey-trans: #53565A80;
+        --wbhb-color-black: #000000;
+        --wbhb-color-white: #ffffff;
+        --wbhb-font-heading: "Ubuntu", sans-serif;
+        --wbhb-font-body: "Cala Light", serif;
+        
+        --grid-size: 15vw;
+        --grid-gap: 5vw;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vw;
+        
+        overflow-x: hidden;
+        
+        font-family: var(--wbhb-font-heading);
+        background-color: var(--wbhb-color-black);
+        color: var(--wbhb-color-white);
+        
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      #logo {
+        font-size: 24pt;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        grid-column: span 2;
+        width: calc(calc(2 * var(--grid-size)) + var(--grid-gap));
+      }
+      
+      h1 {
+        font-size: 36pt;
+        margin-bottom: -18pt;
+      }
+      
+      h2 {
+        font-size: 18pt;
+        color: var(--wbhb-color-grey);
+      }
+      
+      img {
+        width: var(--grid-size);
+        height: var(--grid-size);
+      }
+    </style>
+  </head>
+  <body>
+    
+    <img src="static/images/logo_new.png">
+    
+    <div id="logo">
+      <h1>Studio Live</h1>
+      <h2>By WearsBlackHasBeard</h2>
+    </div>
+    
+    <h1>Something went wrong</h1>
+    <h2>File not found</h2>
+  </body>
+</html>
