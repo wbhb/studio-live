@@ -210,16 +210,15 @@
       import {ChordItem} from './lib/sequencer/items/ChordItem.js';
       import {MIDIItem} from './lib/sequencer/items/MIDIItem.js';
       import {TimeSignature} from './lib/util/timeSignature.js';
-      import {Prompts} from './lib/sequencer/prompts.js';
-      import {Drums} from './lib/sequencer/drums.js';
+      import {Sequencer} from './lib/sequencer/sequencer.js';
       import {MIDISequencer} from './lib/sequencer/MIDISequencer.js';
       import {Chord} from './lib/util/chords.js';
       import {Length} from './lib/util/length.js';
       import {MIDI} from './lib/util/midi.js';
       import {MIDIRemap} from './lib/util/midiRemap.js';
       import {DrumKit} from './lib/instrument/DrumKit.js';
+      import {Prompts} from './lib/instrument/Prompts.js';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.js';
-      // import {SongSheetSequencer} from './lib/sequencer/songSheetSequencer.js';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -228,13 +227,14 @@
       }
       
       const metronome = new Metronome();
-      const prompt = new Prompts();
-      const drums = new Drums();
       const midiSequencer = new MIDISequencer();
+      const promptSequencer = new Sequencer();
       
       const kit = fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
       
       const metronomeInstrument = fetch('static/audio/drums/Metronome/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = -1; return kit}).catch('Error creating metronome');
+      
+      const promptsInstrument = fetch('static/audio/prompts/MT.com/en-us/init.json').then(response => response.json()).then(Prompts.create).then((kit) => {kit.midiChannel = -2; return kit}).catch('Error creating prompts');
       
       const synth = new Synth();
       
@@ -443,10 +443,18 @@
       
       midiSequencer.items = [[kickBar, synthLine]];
       
-      const sequencerEl = document.querySelector('wbhb-sequencer');
+      const chorus = await ItemDB.set(new PromptItem({
+        prompts: ["Chorus"],
+        count: true,
+        timings: {
+          offset: new Length(2, Length.units.bar)
+        }
+      }));
       
-      prompt.items = sequencerEl.items;
-      drums.items = sequencerEl.items;
+      
+      promptSequencer.items = [[chorus]];
+      
+      const sequencerEl = document.querySelector('wbhb-sequencer');
       
       // sequencerEl.addEventListener('control-play', () => {
       //   Scheduler.GLOBAL.audioContext = new AudioContext();
