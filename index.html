@@ -459,6 +459,9 @@
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
+      sequencerEl.addSequencer(midiSequencer);
+      sequencerEl.addSequencer(promptSequencer);
+      
       // sequencerEl.addEventListener('control-play', () => {
       //   Scheduler.GLOBAL.audioContext = new AudioContext();
       //   let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
