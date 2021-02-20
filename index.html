@@ -435,8 +435,8 @@
       
       const synthLine = await ItemDB.set(new SectionItem({
         itemIds: [
-          [s1n, s1f, s2n, s2f, s3n, s3f, s4an, s4af, s5an, s5af],
-          [s1n, s1f, s2n, s2f, s3n, s3f, s4bn, s4bf, s5bn, s5bf]
+          [s1n, s3f, s4an, s4af, s5an, s5af],
+          [s1n, s3f, s4bn, s4bf, s5bn, s5bf]
         ],
         repeats: 0,
         timings: {
@@ -444,7 +444,7 @@
         }
       }));
       
-      midiSequencer.items = [[kickBar, synthLine]];
+      // midiSequencer.items = [[kickBar, synthLine]];
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
@@ -455,7 +455,7 @@
       }));
       
       
-      promptSequencer.items = [[chorus]];
+      // promptSequencer.items = [[chorus]];
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
