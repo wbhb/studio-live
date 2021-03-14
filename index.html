@@ -200,7 +200,9 @@
     <wbhb-sequencer filters="ChordItem PromptItem *">
       
     </wbhb-sequencer>
-
+    
+    <audio id="testAudio"></audio>
+    
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
       import {Metronome} from './lib/sequencer/metronome.mjs';
@@ -222,6 +224,7 @@
       import {DrumKit} from './lib/instrument/DrumKit.mjs';
       import {Prompts} from './lib/instrument/Prompts.mjs';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
+      import {Recorder} from './lib/audio/recorder.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -473,19 +476,39 @@
       //   Scheduler.GLOBAL.scheduleItem(stop);
       // });
       
+      const rec = new Recorder();
+      
+      const audioEl = document.querySelector('#testAudio');
+      
+      rec.addEventListener('done', (e) => {
+        
+        const audioURL = URL.createObjectURL(rec.blob);
+        audioEl.src = audioURL;
+      });
+      
+      rec.init();
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
-        if (!Scheduler.GLOBAL.audioContext) {
-          Scheduler.GLOBAL.audioContext = new AudioContext();
+        
+        if (Scheduler.GLOBAL.audioContext.state === 'suspended') {
+          Scheduler.GLOBAL.audioContext.resume();
         }
+        
         // let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
         // Scheduler.GLOBAL.dispatchEvent(start);
         Scheduler.GLOBAL.start();
+        
+        rec.start();
+        if (audioEl.src) {
+          audioEl.play();
+        }
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
         let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
         Scheduler.GLOBAL.scheduleItem(stop);
+        
+        rec.stop();
       });
       
       document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
