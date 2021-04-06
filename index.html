@@ -499,9 +499,7 @@
         Scheduler.GLOBAL.start();
         
         rec.start();
-        if (audioEl.src) {
-          audioEl.play();
-        }
+        rec.playbackNode.connect(Scheduler.GLOBAL.audioContext.destination);
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
