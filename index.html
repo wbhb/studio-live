@@ -499,7 +499,11 @@
         Scheduler.GLOBAL.start();
         
         rec.start();
-        rec.playbackNode.connect(Scheduler.GLOBAL.audioContext.destination);
+        
+        const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 1000});
+        
+        rec.playbackNode.connect(gain);
+        gain.connect(Scheduler.GLOBAL.audioContext.destination);
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
