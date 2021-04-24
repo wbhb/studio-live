@@ -228,6 +228,7 @@
       import {Prompts} from './lib/instrument/Prompts.mjs';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
       import {Recorder} from './lib/audio/recorder.mjs';
+      import {Playback} from './lib/audio/playback.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -450,7 +451,7 @@
         }
       }));
       
-      midiSequencer.items = [[kickBar, synthLine]];
+      midiSequencer.items = [[kickBar/*, synthLine*/]];
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
@@ -491,6 +492,10 @@
       
       rec.init();
       
+      const pb = new Playback();
+      
+      pb.init();
+      
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         
         if (Scheduler.GLOBAL.audioContext.state === 'suspended') {
@@ -504,10 +509,11 @@
         
         rec.start();
         
-        const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 1000});
+        const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 3});
         
-        rec.playbackNode.connect(gain);
-        gain.connect(Scheduler.GLOBAL.audioContext.destination);
+        pb.playbackNode.connect(gain).connect(Scheduler.GLOBAL.audioContext.destination);
+        
+        pb.start();
       });
       
       document.querySelector('wbhb-button[name="Save"]').addEventListener('click', async () => {
@@ -522,14 +528,16 @@
         });
       });
       
-      document.querySelector('wbhb-button[name="Load"]').addEventListener('click', () => {
+      document.querySelector('wbhb-button[name="Load"]').addEventListener('click', async () => {
         
         
-        rec.playbackHandle = showOpenFilePicker({
+        [pb.handle] = await showOpenFilePicker({
           types: [{
             description: 'Audio',
             accept: {'audio/x-wbhb-basic': ['.wbhbabasic']},
           }],
+          excludeAcceptAllOption: true,
+          multiple: false
         });
       });
       
@@ -538,6 +546,7 @@
         Scheduler.GLOBAL.scheduleItem(stop);
         
         rec.stop();
+        pb.stop();
       });
       
       document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
