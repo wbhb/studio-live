@@ -89,6 +89,9 @@
       
       <wbhb-button type="connect" name="MIDI"></wbhb-button>
       
+      <wbhb-button name="Save"></wbhb-button>
+      <wbhb-button name="Load"></wbhb-button>
+      
       <wbhb-button name="Time" type="Preset">
         <wbhb-button type="Time" name="2/2" draggable="true"></wbhb-button>
         <wbhb-button type="Time" name="?/4">
@@ -498,12 +501,36 @@
         // Scheduler.GLOBAL.dispatchEvent(start);
         Scheduler.GLOBAL.start();
         
+        
         rec.start();
         
         const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 1000});
         
         rec.playbackNode.connect(gain);
         gain.connect(Scheduler.GLOBAL.audioContext.destination);
+      });
+      
+      document.querySelector('wbhb-button[name="Save"]').addEventListener('click', async () => {
+        
+        rec.handle = await showSaveFilePicker({
+          types: [{
+            description: 'Audio',
+            accept: {'audio/x-wbhb-basic': ['.wbhbabasic']},
+          }],
+          excludeAcceptAllOption: true,
+          multiple: false
+        });
+      });
+      
+      document.querySelector('wbhb-button[name="Load"]').addEventListener('click', () => {
+        
+        
+        rec.playbackHandle = showOpenFilePicker({
+          types: [{
+            description: 'Audio',
+            accept: {'audio/x-wbhb-basic': ['.wbhbabasic']},
+          }],
+        });
       });
       
       document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
