@@ -509,7 +509,7 @@
         
         rec.start();
         
-        const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 3});
+        const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 2});
         
         pb.playbackNode.connect(gain).connect(Scheduler.GLOBAL.audioContext.destination);
         
