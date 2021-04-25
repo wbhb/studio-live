@@ -229,6 +229,7 @@
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
       import {Recorder} from './lib/audio/recorder.mjs';
       import {Playback} from './lib/audio/playback.mjs';
+      import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -625,119 +626,23 @@
         sequencer.currentBar = e.barNumber;
       });
       
-      document.querySelectorAll('wbhb-button[name="MIDI"]').forEach((node) => {
+      // document.querySelectorAll('wbhb-button[name="MIDI"]').forEach((node) => {
         
-        const midiSetup = () => {
-          const midiContext = new MIDI();
+      //   const midiSetup = () => {
+          
+          const midiContext = Alesis_V25.outputs.keys().next().value;
           
           // const synth = new Synth();
           
-          node.removeEventListener('click', midiSetup);
+          // node.removeEventListener('click', midiSetup);
           
-          node.setAttribute('disabled', '');
+          // node.setAttribute('disabled', '');
           
-          const AlesisV25_drumRemap = new MIDIRemap([
-            {
-              "tests": [
-                {
-                  "inputParam": "channel",
-                  "testMode": "=",
-                  "testValue": 9
-                },
-                {
-                  "inputParam": "method",
-                  "testMode": "=",
-                  "testValue": MIDI.Channel_Voice
-                },
-                {
-                  "inputParam": "note",
-                  "testMode": "=",
-                  "testValue": 36
-                }
-              ],
-              "map": {
-                "mapMode": "=",
-                "mapValue": DrumKit.getNoteNumber('Closed Hi-hat'),
-                "outputParam": "note"
-              }
-            },
-            {
-              "tests": [
-                {
-                  "inputParam": "channel",
-                  "testMode": "=",
-                  "testValue": 9
-                },
-                {
-                  "inputParam": "method",
-                  "testMode": "=",
-                  "testValue": MIDI.Channel_Voice
-                },
-                {
-                  "inputParam": "note",
-                  "testMode": "=",
-                  "testValue": 37
-                }
-              ],
-              "map": {
-                "mapMode": "=",
-                "mapValue": DrumKit.getNoteNumber('Bass Drum 1'),
-                "outputParam": "note"
-              }
-            },
-            {
-              "tests": [
-                {
-                  "inputParam": "channel",
-                  "testMode": "=",
-                  "testValue": 9
-                },
-                {
-                  "inputParam": "method",
-                  "testMode": "=",
-                  "testValue": MIDI.Channel_Voice
-                },
-                {
-                  "inputParam": "note",
-                  "testMode": "=",
-                  "testValue": 38
-                }
-              ],
-              "map": {
-                "mapMode": "=",
-                "mapValue": DrumKit.getNoteNumber('Snare Drum 1'),
-                "outputParam": "note"
-              }
-            },
-            {
-              "tests": [
-                {
-                  "inputParam": "channel",
-                  "testMode": "=",
-                  "testValue": 9
-                },
-                {
-                  "inputParam": "method",
-                  "testMode": "=",
-                  "testValue": MIDI.Channel_Voice
-                },
-                {
-                  "inputParam": "note",
-                  "testMode": "=",
-                  "testValue": 39
-                }
-              ],
-              "map": {
-                "mapMode": "=",
-                "mapValue": DrumKit.getNoteNumber('Low Tom 1'),
-                "outputParam": "note"
-              }
-            }
-          ]);
+          // const AlesisV25_drumRemap = new MIDIRemap();
           
           midiContext.addEventListener('midi-message', (e) => {
             let item = new MIDIItem({
-              message: AlesisV25_drumRemap.remap(e.message),
+              message: e.message,//AlesisV25_drumRemap.remap(e.message),
               timings: {
                 immediate: true
               }
@@ -749,10 +654,10 @@
             
           });
           
-        };
+        // };
         
-        node.addEventListener('click', midiSetup);
-      });
+        // node.addEventListener('click', midiSetup);
+      // });
     </script>
     
     <script type="module">
