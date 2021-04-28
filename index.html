@@ -452,7 +452,7 @@
         }
       }));
       
-      midiSequencer.items = [[kickBar/*, synthLine*/]];
+      midiSequencer.items = [[kickBar, synthLine]];
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
@@ -658,6 +658,12 @@
         
         // node.addEventListener('click', midiSetup);
       // });
+      
+      Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
+      Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
+      Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
+      Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
+      
     </script>
     
     <script type="module">
