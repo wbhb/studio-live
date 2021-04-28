@@ -249,6 +249,8 @@
       
       const synth = new Synth();
       
+      synth.midiChannel = 2;
+      
       const kick = {
         channel: 9,
         method: MIDI.Channel_Voice,
@@ -452,7 +454,7 @@
         }
       }));
       
-      midiSequencer.items = [[kickBar, synthLine]];
+      midiSequencer.items = [[kickBar/*, synthLine*/]];
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
@@ -642,12 +644,12 @@
           
           midiContext.addEventListener('midi-message', (e) => {
             let item = new MIDIItem({
-              message: e.message,//AlesisV25_drumRemap.remap(e.message),
+              message: e.message,
               timings: {
                 immediate: true
               }
             });
-          
+            
             if (item) {
               Scheduler.GLOBAL.scheduleItem(item);
             }
@@ -663,6 +665,7 @@
       Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
       Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
       Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
+      Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
       
     </script>
     
