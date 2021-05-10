@@ -87,7 +87,7 @@
       <wbhb-button name="Stop" draggable="true"></wbhb-button>
       
       
-      <wbhb-button type="connect" name="MIDI"></wbhb-button>
+      <!--<wbhb-button type="connect" name="MIDI"></wbhb-button>-->
       
       <wbhb-button name="Save"></wbhb-button>
       <wbhb-button name="Load"></wbhb-button>
@@ -627,39 +627,24 @@
         
         sequencer.currentBar = e.barNumber;
       });
+          
+      const midiContext = Alesis_V25.outputs.keys().next().value;
       
-      // document.querySelectorAll('wbhb-button[name="MIDI"]').forEach((node) => {
+      midiContext.addEventListener('midi-message', (e) => {
+        let item = new MIDIItem({
+          message: e.message,
+          timings: {
+            immediate: true
+          }
+        });
         
-      //   const midiSetup = () => {
-          
-          const midiContext = Alesis_V25.outputs.keys().next().value;
-          
-          // const synth = new Synth();
-          
-          // node.removeEventListener('click', midiSetup);
-          
-          // node.setAttribute('disabled', '');
-          
-          // const AlesisV25_drumRemap = new MIDIRemap();
-          
-          midiContext.addEventListener('midi-message', (e) => {
-            let item = new MIDIItem({
-              message: e.message,
-              timings: {
-                immediate: true
-              }
-            });
-            
-            if (item) {
-              Scheduler.GLOBAL.scheduleItem(item);
-            }
-            
-          });
-          
-        // };
+        if (item) {
+          Scheduler.GLOBAL.scheduleItem(item);
+        }
         
-        // node.addEventListener('click', midiSetup);
-      // });
+      });
+      
+      Alesis_V25.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
       
       Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
       Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
