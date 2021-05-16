@@ -11,6 +11,7 @@
     <script type="module" src='./lib/ui/wbhb-chord.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
@@ -73,6 +74,30 @@
       #logo h2 {
         font-size: 18pt;
         color: var(--wbhb-color-grey);
+      }
+      
+      #rack {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      #rack #connections {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      
+      #rack #sources {
+        width: 20vw;
+      }
+      
+      #rack #transforms {
+        width: 30vw;
+      }
+      
+      #rack #destinations {
+        width: 20vw;
       }
     </style>
   </head>
@@ -197,24 +222,14 @@
         </wbhb-button>
       </wbhb-button>
       
-      <div>
-        <h2>Metronome</h2>
-        <input id="enable-metronome" type="checkbox" value="enabled" checked />
-      </div>
-      <div>
-        <h2>Drums</h2>
-        <input id="enable-drums" type="checkbox"  value="enabled" checked />
-      </div>
-      <div>
-        <h2>Promps</h2>
-        <input id="enable-prompts" type="checkbox"  value="enabled" checked />
-      </div>
-      <div>
-        <h2>Synth</h2>
-        <input id="enable-synth" type="checkbox"  value="enabled" checked />
-      </div>
-      
       <!--<wbhb-chord></wbhb-chord>-->
+    </div>
+    
+    <div id="rack">
+      <canvas id="connections" is="wbhb-rack-connections"></canvas>
+      <div id="sources"></div>
+      <div id="transforms"></div>
+      <div id="destinations"></div>
     </div>
     
     <wbhb-sequencer filters="ChordItem PromptItem *">
@@ -247,6 +262,7 @@
       import {Recorder} from './lib/audio/recorder.mjs';
       import {Playback} from './lib/audio/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
+      import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -260,9 +276,15 @@
       
       const kit = await fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
       
+      kit.name = "Drum Kit: CO";
+      
       const metronomeInstrument = await fetch('static/audio/drums/Metronome/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = -1; return kit}).catch('Error creating metronome');
       
+      metronomeInstrument.name = "Metronome";
+      
       const promptsInstrument = await fetch('static/audio/prompts/MT.com/en-us/init.json').then(response => response.json()).then(Prompts.create).then((kit) => {kit.midiChannel = -2; return kit}).catch('Error creating prompts');
+      
+      promptsInstrument.name = "Prompts";
       
       const synth = new Synth();
       
@@ -645,56 +667,98 @@
         sequencer.currentBar = e.barNumber;
       });
           
-      const midiContext = Alesis_V25.outputs.keys().next().value;
+      // const midiContext = Alesis_V25.outputs.keys().next().value;
       
-      midiContext.addEventListener('midi-message', (e) => {
-        let item = new MIDIItem({
-          message: e.message,
-          timings: {
-            immediate: true
-          }
-        });
+      // midiContext.addEventListener('midi-message', (e) => {
+      //   let item = new MIDIItem({
+      //     message: e.message,
+      //     timings: {
+      //       immediate: true
+      //     }
+      //   });
         
-        if (item) {
-          Scheduler.GLOBAL.scheduleItem(item);
-        }
+      //   if (item) {
+      //     Scheduler.GLOBAL.scheduleItem(item);
+      //   }
         
-      });
-      
-      Alesis_V25.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
-      Alesis_V25.getNamedOutput('MIDI Out').node.connect(kit.getNamedInput('MIDI In').node);
-      
-      Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
-      Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
-      Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
-      Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
-      Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
-      
-      synth.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
-      kit.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
-      metronomeInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
-      promptsInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      // });
       
       synth.enable();
       kit.enable();
       metronomeInstrument.enable();
       promptsInstrument.enable();
       
-      document.querySelector('#enable-metronome').addEventListener('change', (e) => {
-        metronomeInstrument.enabled = e.target.checked;
+      const rackItems = [
+        synth,
+        Alesis_V25,
+        kit,
+        metronomeInstrument,
+        promptsInstrument
+      ];
+      
+      rackItems.forEach((item) => {
+        const el = new WBHBRackItem(item);
+        if (item.isSource) {
+          document.querySelector('#rack #sources').appendChild(el)
+        }
+        if (item.isTransform) {
+          document.querySelector('#rack #transforms').appendChild(el)
+        }
+        if (item.isDestination) {
+          document.querySelector('#rack #destinations').appendChild(el)
+        }
       });
       
-      document.querySelector('#enable-drums').addEventListener('change', (e) => {
-        kit.enabled = e.target.checked;
-      });
+      const canvasEl = document.querySelector('#rack #connections');
       
-      document.querySelector('#enable-synth').addEventListener('change', (e) => {
-        synth.enabled = e.target.checked;
-      });
+      const connect = (srcEl, srcNodeName, dstEl, dstNodeName) => {
+        const src = srcEl.getIO(srcNodeName);
+        const dst = dstEl.getIO(dstNodeName);
+        
+        src.node.connect(dst.node);
+        canvasEl.connections.set(dst, src);
+      };
       
-      document.querySelector('#enable-prompts').addEventListener('change', (e) => {
-        promptsInstrument.enabled = e.target.checked;
-      });
+      const alesis_V25El = document.querySelector('wbhb-rack-item[name="Alesis V25"]');
+      const synthEl = document.querySelector('wbhb-rack-item[name="Simple Synth"]');
+      const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
+      
+      connect(alesis_V25El, 'MIDI Out', synthEl, "MIDI In");
+      connect(alesis_V25El, 'MIDI Out', kitEl, "MIDI In");
+      
+      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
+      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(kit.getNamedInput('MIDI In').node);
+      
+      connect(alesis_V25El, 'Encoder 1', synthEl, "Attack");
+      connect(alesis_V25El, 'Encoder 2', synthEl, "Decay");
+      connect(alesis_V25El, 'Encoder 3', synthEl, "Sustain");
+      connect(alesis_V25El, 'Encoder 4', synthEl, "Release");
+      connect(alesis_V25El, 'Pitch Wheel', synthEl, "Detune");
+      
+      // Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
+      // Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
+      // Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
+      // Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
+      // Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
+      
+      synth.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      kit.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      metronomeInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      promptsInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      
+      
+      canvasEl.drawConnections();
+      
+      // const canvasBounds = canvasEl.getBoundingClientRect();
+      
+      // canvasEl.width = canvasBounds.width;
+      // canvasEl.height = canvasBounds.height;
+      
+      // const connCtx = canvasEl.getContext('2d');
+      
+      // window.ctx = connCtx;
+      // connCtx.strokeStyle = "yellow";
+      // connCtx.lineWidth = '5';
       
     </script>
     
