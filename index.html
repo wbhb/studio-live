@@ -711,29 +711,23 @@
       
       const canvasEl = document.querySelector('#rack #connections');
       
-      const connect = (srcEl, srcNodeName, dstEl, dstNodeName) => {
-        const src = srcEl.getIO(srcNodeName);
-        const dst = dstEl.getIO(dstNodeName);
-        
-        src.node.connect(dst.node);
-        canvasEl.connections.set(dst, src);
-      };
       
-      const alesis_V25El = document.querySelector('wbhb-rack-item[name="Alesis V25"]');
-      const synthEl = document.querySelector('wbhb-rack-item[name="Simple Synth"]');
-      const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
       
-      connect(alesis_V25El, 'MIDI Out', synthEl, "MIDI In");
-      connect(alesis_V25El, 'MIDI Out', kitEl, "MIDI In");
+      // const alesis_V25El = document.querySelector('wbhb-rack-item[name="Alesis V25"]');
+      // const synthEl = document.querySelector('wbhb-rack-item[name="Simple Synth"]');
+      // const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
+      
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Simple Synth', 'MIDI In');
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
       
       // Alesis_V25.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
       // Alesis_V25.getNamedOutput('MIDI Out').node.connect(kit.getNamedInput('MIDI In').node);
       
-      connect(alesis_V25El, 'Encoder 1', synthEl, "Attack");
-      connect(alesis_V25El, 'Encoder 2', synthEl, "Decay");
-      connect(alesis_V25El, 'Encoder 3', synthEl, "Sustain");
-      connect(alesis_V25El, 'Encoder 4', synthEl, "Release");
-      connect(alesis_V25El, 'Pitch Wheel', synthEl, "Detune");
+      // connect(alesis_V25El, 'Encoder 1', synthEl, "Attack");
+      // connect(alesis_V25El, 'Encoder 2', synthEl, "Decay");
+      // connect(alesis_V25El, 'Encoder 3', synthEl, "Sustain");
+      // connect(alesis_V25El, 'Encoder 4', synthEl, "Release");
+      // connect(alesis_V25El, 'Pitch Wheel', synthEl, "Detune");
       
       // Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
       // Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
