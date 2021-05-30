@@ -249,6 +249,7 @@
       import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.mjs';
       import {ChordItem} from './lib/sequencer/items/ChordItem.mjs';
       import {MIDIItem} from './lib/sequencer/items/MIDIItem.mjs';
+      import {MIDITupleItem} from './lib/sequencer/items/MIDITupleItem.mjs';
       import {TimeSignature} from './lib/util/timeSignature.mjs';
       import {Sequencer} from './lib/sequencer/sequencer.mjs';
       import {MIDISequencer} from './lib/sequencer/MIDISequencer.mjs';
@@ -331,161 +332,73 @@
         }
       }));
       
-      const C3_on = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
+      const s1 = await ItemDB.set(await new MIDITupleItem({
         note: 36,
-        velocity: 127
-      };
-      
-      const C3_off = {
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
+        timings: {
+          offset: new Length(0, Length.units.beat),
+          length: new Length(1.4, Length.units.beat)
+        }
+      }));
+      
+      const s2 = await ItemDB.set(await new MIDITupleItem({
         note: 36,
-        velocity: 127
-      };
-      
-      const Cs3_on = {
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
-        note: 37,
-        velocity: 127
-      };
+        timings: {
+          offset: new Length(1.5, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
+        }
+      }));
       
-      const Cs3_off = {
+      const s3 = await ItemDB.set(await new MIDITupleItem({
+        note: 36,
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
-        note: 37,
-        velocity: 127
-      };
+        timings: {
+          offset: new Length(2, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
+        }
+      }));
       
-      const B3_on = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
-        note: 35,
-        velocity: 127
-      };
-      
-      const B3_off = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
-        note: 35,
-        velocity: 127
-      };
-      
-      const Bb3_on = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
+      const s4a = await ItemDB.set(await new MIDITupleItem({
         note: 34,
-        velocity: 127
-      };
-      
-      const Bb3_off = {
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
+        timings: {
+          offset: new Length(2.5, Length.units.beat),
+          length: new Length(0.9, Length.units.beat)
+        }
+      }));
+      
+      const s4b = await ItemDB.set(await new MIDITupleItem({
+        note: 37,
+        channel: 0,
+        timings: {
+          offset: new Length(2.5, Length.units.beat),
+          length: new Length(0.9, Length.units.beat)
+        }
+      }));
+      
+      const s5a = await ItemDB.set(await new MIDITupleItem({
         note: 34,
-        velocity: 127
-      };
-      
-      const s1n = await ItemDB.set(new MIDIItem({
-        message: C3_on,
+        channel: 0,
         timings: {
-          offset: new Length(0, Length.units.beat)
-        }
-      }));
-      const s1f = await ItemDB.set(new MIDIItem({
-        message: C3_off,
-        timings: {
-          offset: new Length(1.4, Length.units.beat)
-        }
-      }));
-      const s2n = await ItemDB.set(new MIDIItem({
-        message: C3_on,
-        timings: {
-          offset: new Length(1.5, Length.units.beat)
-        }
-      }));
-      const s2f = await ItemDB.set(new MIDIItem({
-        message: C3_off,
-        timings: {
-          offset: new Length(1.9, Length.units.beat)
-        }
-      }));
-      const s3n = await ItemDB.set(new MIDIItem({
-        message: C3_on,
-        timings: {
-          offset: new Length(2, Length.units.beat)
-        }
-      }));
-      const s3f = await ItemDB.set(new MIDIItem({
-        message: C3_off,
-        timings: {
-          offset: new Length(2.4, Length.units.beat)
+          offset: new Length(3.5, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
         }
       }));
       
-      const s4an = await ItemDB.set(new MIDIItem({
-        message: Bb3_on,
+      const s5b = await ItemDB.set(await new MIDITupleItem({
+        note: 37,
+        channel: 0,
         timings: {
-          offset: new Length(2.5, Length.units.beat)
-        }
-      }));
-      const s4af = await ItemDB.set(new MIDIItem({
-        message: Bb3_off,
-        timings: {
-          offset: new Length(3.4, Length.units.beat)
-        }
-      }));
-      const s5an = await ItemDB.set(new MIDIItem({
-        message: Bb3_on,
-        timings: {
-          offset: new Length(3.5, Length.units.beat)
-        }
-      }));
-      const s5af = await ItemDB.set(new MIDIItem({
-        message: Bb3_off,
-        timings: {
-          offset: new Length(3.9, Length.units.beat)
-        }
-      }));
-      
-      const s4bn = await ItemDB.set(new MIDIItem({
-        message: Cs3_on,
-        timings: {
-          offset: new Length(2.5, Length.units.beat)
-        }
-      }));
-      const s4bf = await ItemDB.set(new MIDIItem({
-        message: Cs3_off,
-        timings: {
-          offset: new Length(3.4, Length.units.beat)
-        }
-      }));
-      const s5bn = await ItemDB.set(new MIDIItem({
-        message: Cs3_on,
-        timings: {
-          offset: new Length(3.5, Length.units.beat)
-        }
-      }));
-      const s5bf = await ItemDB.set(new MIDIItem({
-        message: Cs3_off,
-        timings: {
-          offset: new Length(3.9, Length.units.beat)
+          offset: new Length(3.5, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
         }
       }));
       
       const synthLine = await ItemDB.set(new SectionItem({
         itemIds: [
-          [s1n, s1f, s2n, s2f, s3n, s3f, s4an, s4af, s5an, s5af],
-          [s1n, s1f, s2n, s2f, s3n, s3f, s4bn, s4bf, s5bn, s5bf]
+          [s1, s2, s3, s4a, s5a],
+          [s1, s2, s3, s4b, s5b]
         ],
         repeats: 0,
         timings: {
