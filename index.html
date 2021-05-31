@@ -187,21 +187,7 @@
         </wbhb-button>
       </wbhb-button>
       
-      <wbhb-button type="" name="Drums">
-        <wbhb-button type="Drum Kit" name="CarbonMonoxide" href="http://ccmixter.org/files/carbonmonoxidemusic/23425">
-          <wbhb-button type="Hit" name="Closed Hat" href="static/audio/drums/CO/ClosedHat.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Crash" href="static/audio/drums/CO/CrashCymbal.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Floor Tom" href="static/audio/drums/CO/FloorTom.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Kick" href="static/audio/drums/CO/Kick.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Mid Hat" href="static/audio/drums/CO/MidHat.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Mid Tom" href="static/audio/drums/CO/MidTom.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Open Hat 1" href="static/audio/drums/CO/OpenHat1.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Open Hat 2" href="static/audio/drums/CO/OpenHat2.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Ride" href="static/audio/drums/CO/RideCymbal.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Sample 1" href="static/audio/drums/CO/Sample1.wav" draggable="true"></wbhb-button>
-          <wbhb-button type="Hit" name="Sample 2" href="static/audio/drums/CO/Sample2.wav" draggable="true"></wbhb-button>
-        </wbhb-button>
-      </wbhb-button>
+      <wbhb-button type="" name="Drums"></wbhb-button>
       
       <wbhb-button type="" name="Chords">
         <wbhb-button type="Major" name="Root" draggable="true"></wbhb-button>
@@ -225,18 +211,15 @@
       <!--<wbhb-chord></wbhb-chord>-->
     </div>
     
+    <wbhb-sequencer media-types="application/x.wbhb.studio.midiitem">
+      
+    </wbhb-sequencer>
+    
     <div id="rack">
       <canvas id="connections" is="wbhb-rack-connections"></canvas>
       <div id="sources"></div>
       <div id="transforms"></div>
       <div id="destinations"></div>
-    </div>
-    
-    <wbhb-sequencer filters="ChordItem PromptItem *">
-      
-    </wbhb-sequencer>
-    
-    <audio id="testAudio"></audio>
     
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
@@ -263,6 +246,7 @@
       import {Recorder} from './lib/audio/recorder.mjs';
       import {Playback} from './lib/audio/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
+      import {WBHBButton} from './lib/ui/wbhb-button.mjs';
       import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -421,8 +405,8 @@
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
-      sequencerEl.addSequencer(midiSequencer);
-      sequencerEl.addSequencer(promptSequencer);
+      sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
+      sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
       
       // sequencerEl.addEventListener('control-play', () => {
       //   Scheduler.GLOBAL.audioContext = new AudioContext();
@@ -437,19 +421,40 @@
       
       const rec = new Recorder();
       
-      const audioEl = document.querySelector('#testAudio');
-      
-      rec.addEventListener('done', (e) => {
-        
-        const audioURL = URL.createObjectURL(rec.blob);
-        audioEl.src = audioURL;
-      });
-      
       rec.init();
       
       const pb = new Playback();
       
       pb.init();
+          
+      const kitEl = new WBHBButton();
+      kitEl.type = "Drum Kit";
+      kitEl.name = kit.name;
+      
+      kit.drums.forEach(async (drum) => {
+        const drumEl = new WBHBButton();
+        drumEl.type = "Hit";
+        drumEl.name = drum.name;
+        drumEl.setAttribute('draggable','true');
+        
+        const itemId = await ItemDB.set(new MIDIItem({
+          message: {
+            note: DrumKit.getNoteNumber(drum.name),
+            channel: 9,
+            method: MIDI.Channel_Voice,
+            command: MIDI.Note_On,
+            velocity: 127
+          }
+        }));
+        
+        console.log(itemId);
+        
+        drumEl.itemId = itemId;
+        
+        kitEl.appendChild(drumEl);
+      });
+      
+      document.querySelector('wbhb-button[name="Drums"]').appendChild(kitEl);
       
       document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
         
