@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>WBHB Studio Live</title>
     
@@ -390,7 +391,7 @@
         }
       }));
       
-      midiSequencer.items = [[kickBar, synthLine]];
+      midiSequencer.items = [];//[[kickBar, synthLine]];
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
