@@ -11,6 +11,7 @@
     <script type="module" src='./lib/ui/wbhb-chord.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
@@ -74,6 +75,30 @@
         font-size: 18pt;
         color: var(--wbhb-color-grey);
       }
+      
+      #rack {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      #rack #connections {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      
+      #rack #sources {
+        width: 20vw;
+      }
+      
+      #rack #transforms {
+        width: 30vw;
+      }
+      
+      #rack #destinations {
+        width: 20vw;
+      }
     </style>
   </head>
   <body>
@@ -87,7 +112,7 @@
       <wbhb-button name="Stop" draggable="true"></wbhb-button>
       
       
-      <wbhb-button type="connect" name="MIDI"></wbhb-button>
+      <!--<wbhb-button type="connect" name="MIDI"></wbhb-button>-->
       
       <wbhb-button name="Save"></wbhb-button>
       <wbhb-button name="Load"></wbhb-button>
@@ -200,6 +225,13 @@
       <!--<wbhb-chord></wbhb-chord>-->
     </div>
     
+    <div id="rack">
+      <canvas id="connections" is="wbhb-rack-connections"></canvas>
+      <div id="sources"></div>
+      <div id="transforms"></div>
+      <div id="destinations"></div>
+    </div>
+    
     <wbhb-sequencer filters="ChordItem PromptItem *">
       
     </wbhb-sequencer>
@@ -217,6 +249,7 @@
       import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.mjs';
       import {ChordItem} from './lib/sequencer/items/ChordItem.mjs';
       import {MIDIItem} from './lib/sequencer/items/MIDIItem.mjs';
+      import {MIDITupleItem} from './lib/sequencer/items/MIDITupleItem.mjs';
       import {TimeSignature} from './lib/util/timeSignature.mjs';
       import {Sequencer} from './lib/sequencer/sequencer.mjs';
       import {MIDISequencer} from './lib/sequencer/MIDISequencer.mjs';
@@ -231,6 +264,7 @@
       import {Recorder} from './lib/audio/recorder.mjs';
       import {Playback} from './lib/audio/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
+      import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -242,14 +276,20 @@
       const midiSequencer = new MIDISequencer();
       const promptSequencer = new Sequencer();
       
-      const kit = fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
+      const kit = await fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
       
-      const metronomeInstrument = fetch('static/audio/drums/Metronome/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = -1; return kit}).catch('Error creating metronome');
+      kit.name = "Drum Kit: CO";
       
-      const promptsInstrument = fetch('static/audio/prompts/MT.com/en-us/init.json').then(response => response.json()).then(Prompts.create).then((kit) => {kit.midiChannel = -2; return kit}).catch('Error creating prompts');
+      const metronomeInstrument = await fetch('static/audio/drums/Metronome/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = -1; return kit}).catch('Error creating metronome');
+      
+      metronomeInstrument.name = "Metronome";
+      
+      const promptsInstrument = await fetch('static/audio/prompts/MT.com/en-us/init.json').then(response => response.json()).then(Prompts.create).then((kit) => {kit.midiChannel = -2; return kit}).catch('Error creating prompts');
+      
+      promptsInstrument.name = "Prompts";
       
       const synth = new Synth();
-      synth.midiChannel = 3;//2;
+      synth.midiChannel = 0;
       
       const hammond = new Hammond();
       hammond.midiChannel = 2;
@@ -295,161 +335,73 @@
         }
       }));
       
-      const C3_on = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
+      const s1 = await ItemDB.set(await new MIDITupleItem({
         note: 36,
-        velocity: 127
-      };
-      
-      const C3_off = {
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
+        timings: {
+          offset: new Length(0, Length.units.beat),
+          length: new Length(1.4, Length.units.beat)
+        }
+      }));
+      
+      const s2 = await ItemDB.set(await new MIDITupleItem({
         note: 36,
-        velocity: 127
-      };
-      
-      const Cs3_on = {
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
-        note: 37,
-        velocity: 127
-      };
+        timings: {
+          offset: new Length(1.5, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
+        }
+      }));
       
-      const Cs3_off = {
+      const s3 = await ItemDB.set(await new MIDITupleItem({
+        note: 36,
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
-        note: 37,
-        velocity: 127
-      };
+        timings: {
+          offset: new Length(2, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
+        }
+      }));
       
-      const B3_on = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
-        note: 35,
-        velocity: 127
-      };
-      
-      const B3_off = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
-        note: 35,
-        velocity: 127
-      };
-      
-      const Bb3_on = {
-        channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
+      const s4a = await ItemDB.set(await new MIDITupleItem({
         note: 34,
-        velocity: 127
-      };
-      
-      const Bb3_off = {
         channel: 0,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_Off,
+        timings: {
+          offset: new Length(2.5, Length.units.beat),
+          length: new Length(0.9, Length.units.beat)
+        }
+      }));
+      
+      const s4b = await ItemDB.set(await new MIDITupleItem({
+        note: 37,
+        channel: 0,
+        timings: {
+          offset: new Length(2.5, Length.units.beat),
+          length: new Length(0.9, Length.units.beat)
+        }
+      }));
+      
+      const s5a = await ItemDB.set(await new MIDITupleItem({
         note: 34,
-        velocity: 127
-      };
-      
-      const s1n = await ItemDB.set(new MIDIItem({
-        message: C3_on,
+        channel: 0,
         timings: {
-          offset: new Length(0, Length.units.beat)
-        }
-      }));
-      const s1f = await ItemDB.set(new MIDIItem({
-        message: C3_off,
-        timings: {
-          offset: new Length(1.4, Length.units.beat)
-        }
-      }));
-      const s2n = await ItemDB.set(new MIDIItem({
-        message: C3_on,
-        timings: {
-          offset: new Length(1.5, Length.units.beat)
-        }
-      }));
-      const s2f = await ItemDB.set(new MIDIItem({
-        message: C3_off,
-        timings: {
-          offset: new Length(1.9, Length.units.beat)
-        }
-      }));
-      const s3n = await ItemDB.set(new MIDIItem({
-        message: C3_on,
-        timings: {
-          offset: new Length(2, Length.units.beat)
-        }
-      }));
-      const s3f = await ItemDB.set(new MIDIItem({
-        message: C3_off,
-        timings: {
-          offset: new Length(2.4, Length.units.beat)
+          offset: new Length(3.5, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
         }
       }));
       
-      const s4an = await ItemDB.set(new MIDIItem({
-        message: Bb3_on,
+      const s5b = await ItemDB.set(await new MIDITupleItem({
+        note: 37,
+        channel: 0,
         timings: {
-          offset: new Length(2.5, Length.units.beat)
-        }
-      }));
-      const s4af = await ItemDB.set(new MIDIItem({
-        message: Bb3_off,
-        timings: {
-          offset: new Length(3.4, Length.units.beat)
-        }
-      }));
-      const s5an = await ItemDB.set(new MIDIItem({
-        message: Bb3_on,
-        timings: {
-          offset: new Length(3.5, Length.units.beat)
-        }
-      }));
-      const s5af = await ItemDB.set(new MIDIItem({
-        message: Bb3_off,
-        timings: {
-          offset: new Length(3.9, Length.units.beat)
-        }
-      }));
-      
-      const s4bn = await ItemDB.set(new MIDIItem({
-        message: Cs3_on,
-        timings: {
-          offset: new Length(2.5, Length.units.beat)
-        }
-      }));
-      const s4bf = await ItemDB.set(new MIDIItem({
-        message: Cs3_off,
-        timings: {
-          offset: new Length(3.4, Length.units.beat)
-        }
-      }));
-      const s5bn = await ItemDB.set(new MIDIItem({
-        message: Cs3_on,
-        timings: {
-          offset: new Length(3.5, Length.units.beat)
-        }
-      }));
-      const s5bf = await ItemDB.set(new MIDIItem({
-        message: Cs3_off,
-        timings: {
-          offset: new Length(3.9, Length.units.beat)
+          offset: new Length(3.5, Length.units.beat),
+          length: new Length(0.4, Length.units.beat)
         }
       }));
       
       const synthLine = await ItemDB.set(new SectionItem({
         itemIds: [
-          [s1n, s1f, s2n, s2f, s3n, s3f, s4an, s4af, s5an, s5af],
-          [s1n, s1f, s2n, s2f, s3n, s3f, s4bn, s4bf, s5bn, s5bf]
+          [s1, s2, s3, s4a, s5a],
+          [s1, s2, s3, s4b, s5b]
         ],
         repeats: 0,
         timings: {
@@ -457,7 +409,7 @@
         }
       }));
       
-      // midiSequencer.items = [[kickBar, synthLine]];
+      midiSequencer.items = [[kickBar, synthLine]];
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
@@ -468,7 +420,7 @@
       }));
       
       
-      // promptSequencer.items = [[chorus]];
+      promptSequencer.items = [[chorus]];
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
@@ -630,45 +582,94 @@
         
         sequencer.currentBar = e.barNumber;
       });
+          
+      // const midiContext = Alesis_V25.outputs.keys().next().value;
       
-      // document.querySelectorAll('wbhb-button[name="MIDI"]').forEach((node) => {
+      // midiContext.addEventListener('midi-message', (e) => {
+      //   let item = new MIDIItem({
+      //     message: e.message,
+      //     timings: {
+      //       immediate: true
+      //     }
+      //   });
         
-      //   const midiSetup = () => {
-          
-          const midiContext = Alesis_V25.outputs.keys().next().value;
-          
-          // const synth = new Synth();
-          
-          // node.removeEventListener('click', midiSetup);
-          
-          // node.setAttribute('disabled', '');
-          
-          // const AlesisV25_drumRemap = new MIDIRemap();
-          
-          midiContext.addEventListener('midi-message', (e) => {
-            let item = new MIDIItem({
-              message: e.message,
-              timings: {
-                immediate: true
-              }
-            });
-            
-            if (item) {
-              Scheduler.GLOBAL.scheduleItem(item);
-            }
-            
-          });
-          
-        // };
+      //   if (item) {
+      //     Scheduler.GLOBAL.scheduleItem(item);
+      //   }
         
-        // node.addEventListener('click', midiSetup);
       // });
+      
+      synth.enable();
+      kit.enable();
+      metronomeInstrument.enable();
+      promptsInstrument.enable();
+      
+      const rackItems = [
+        synth,
+        Alesis_V25,
+        kit,
+        metronomeInstrument,
+        promptsInstrument
+      ];
+      
+      rackItems.forEach((item) => {
+        const el = new WBHBRackItem(item);
+        if (item.isSource) {
+          document.querySelector('#rack #sources').appendChild(el)
+        }
+        if (item.isTransform) {
+          document.querySelector('#rack #transforms').appendChild(el)
+        }
+        if (item.isDestination) {
+          document.querySelector('#rack #destinations').appendChild(el)
+        }
+      });
+      
+      const canvasEl = document.querySelector('#rack #connections');
+      
+      
+      
+      // const alesis_V25El = document.querySelector('wbhb-rack-item[name="Alesis V25"]');
+      // const synthEl = document.querySelector('wbhb-rack-item[name="Simple Synth"]');
+      // const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
+      
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Simple Synth', 'MIDI In');
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
+      
+      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
+      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(kit.getNamedInput('MIDI In').node);
+      
+      // connect(alesis_V25El, 'Encoder 1', synthEl, "Attack");
+      // connect(alesis_V25El, 'Encoder 2', synthEl, "Decay");
+      // connect(alesis_V25El, 'Encoder 3', synthEl, "Sustain");
+      // connect(alesis_V25El, 'Encoder 4', synthEl, "Release");
+      // connect(alesis_V25El, 'Pitch Wheel', synthEl, "Detune");
       
       // Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
       // Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
       // Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
       // Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
-      Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
+
+      // Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
+      
+      synth.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      kit.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      metronomeInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      promptsInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      
+      
+      canvasEl.drawConnections();
+      
+      // const canvasBounds = canvasEl.getBoundingClientRect();
+      
+      // canvasEl.width = canvasBounds.width;
+      // canvasEl.height = canvasBounds.height;
+      
+      // const connCtx = canvasEl.getContext('2d');
+      
+      // window.ctx = connCtx;
+      // connCtx.strokeStyle = "yellow";
+      // connCtx.lineWidth = '5';
       
       Alesis_V25.getNamedOutput('Encoder 1').node.connect(hammond.getNamedInput('Drawbar 16').node);
       Alesis_V25.getNamedOutput('Encoder 2').node.connect(hammond.getNamedInput('Drawbar 5 1/3').node);
