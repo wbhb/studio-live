@@ -260,6 +260,7 @@
       import {DrumKit} from './lib/instrument/DrumKit.mjs';
       import {Prompts} from './lib/instrument/Prompts.mjs';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
+      import {Hammond} from './lib/instrument/Hammond.mjs';
       import {Recorder} from './lib/audio/recorder.mjs';
       import {Playback} from './lib/audio/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
@@ -288,8 +289,10 @@
       promptsInstrument.name = "Prompts";
       
       const synth = new Synth();
-      
       synth.midiChannel = 0;
+      
+      const hammond = new Hammond();
+      hammond.midiChannel = 2;
       
       const kick = {
         channel: 9,
@@ -646,6 +649,7 @@
       // Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
       // Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
       // Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
+
       // Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
       
       synth.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
@@ -666,6 +670,55 @@
       // window.ctx = connCtx;
       // connCtx.strokeStyle = "yellow";
       // connCtx.lineWidth = '5';
+      
+      Alesis_V25.getNamedOutput('Encoder 1').node.connect(hammond.getNamedInput('Drawbar 16').node);
+      Alesis_V25.getNamedOutput('Encoder 2').node.connect(hammond.getNamedInput('Drawbar 5 1/3').node);
+      Alesis_V25.getNamedOutput('Encoder 3').node.connect(hammond.getNamedInput('Drawbar 2 2/3').node);
+      Alesis_V25.getNamedOutput('Encoder 4').node.connect(hammond.getNamedInput('Drawbar 2').node);
+      
+      hammond.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      
+      // hammond.getNamedInput('Drawbar 4').gain
+      //         {
+      //     node: GlobalScheduler.audioContext.createGain(),
+      //     config: {
+      //       type: 'AudioParam',
+      //       name: 'Drawbar 4'
+      //     }
+      //   },
+      //   {
+      //     node: GlobalScheduler.audioContext.createGain(),
+      //     config: {
+      //       type: 'AudioParam',
+      //       name: 'Drawbar 2 2/3'
+      //     }
+      //   },
+      //   {
+      //     node: GlobalScheduler.audioContext.createGain(),
+      //     config: {
+      //       type: 'AudioParam',
+      //       name: 'Drawbar 2'
+      //     }
+      //   },
+      //   {
+      //     node: GlobalScheduler.audioContext.createGain(),
+      //     config: {
+      //       type: 'AudioParam',
+      //       name: 'Drawbar 1 3/5'
+      //     }
+      //   },
+      //   {
+      //     node: GlobalScheduler.audioContext.createGain(),
+      //     config: {
+      //       type: 'AudioParam',
+      //       name: 'Drawbar 1 1/3'
+      //     }
+      //   },
+      //   {
+      //     node: GlobalScheduler.audioContext.createGain(),
+      //     config: {
+      //       type: 'AudioParam',
+      //       name: 'Drawbar 1'
       
     </script>
     
