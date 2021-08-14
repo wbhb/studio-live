@@ -247,6 +247,7 @@
       import {Recorder} from './lib/audio/recorder.mjs';
       import {Playback} from './lib/audio/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
+      import {Octaver} from './lib/rack/Octaver.mjs';
       import {WBHBButton} from './lib/ui/wbhb-button.mjs';
       import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
@@ -602,17 +603,21 @@
         
       // });
       
+      const octaver = new Octaver();
+      
       synth.enable();
       kit.enable();
       metronomeInstrument.enable();
       promptsInstrument.enable();
+      octaver.enable();
       
       const rackItems = [
         synth,
         Alesis_V25,
         kit,
         metronomeInstrument,
-        promptsInstrument
+        promptsInstrument,
+        octaver,
       ];
       
       rackItems.forEach((item) => {
@@ -636,10 +641,13 @@
       // const synthEl = document.querySelector('wbhb-rack-item[name="Simple Synth"]');
       // const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
       
-      canvasEl.connect('Alesis V25', 'MIDI Out', 'Simple Synth', 'MIDI In');
-      canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Octaver', 'MIDI In');
+      canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
+      // canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
       
-      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
+      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(octaver.getNamedInput('MIDI In').node);
+      // octaver.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
+      
       // Alesis_V25.getNamedOutput('MIDI Out').node.connect(kit.getNamedInput('MIDI In').node);
       
       // connect(alesis_V25El, 'Encoder 1', synthEl, "Attack");
