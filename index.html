@@ -278,7 +278,7 @@
       synth.midiChannel = 0;
       
       const hammond = new Hammond();
-      hammond.midiChannel = 2;
+      hammond.midiChannel = 0;//2;
       
       const kick = {
         channel: 9,
@@ -616,11 +616,12 @@
       
       const rackItems = [
         synth,
+        hammond,
         Alesis_V25,
         kit,
         metronomeInstrument,
         promptsInstrument,
-        octaver,
+        octaver
       ];
       
       rackItems.forEach((item) => {
@@ -645,6 +646,7 @@
       // const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
       
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Octaver', 'MIDI In');
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Hammond Organ', 'MIDI In');
       canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
       // canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
       
@@ -685,10 +687,10 @@
       // connCtx.strokeStyle = "yellow";
       // connCtx.lineWidth = '5';
       
-      Alesis_V25.getNamedOutput('Encoder 1').node.connect(hammond.getNamedInput('Drawbar 16').node);
-      Alesis_V25.getNamedOutput('Encoder 2').node.connect(hammond.getNamedInput('Drawbar 5 1/3').node);
-      Alesis_V25.getNamedOutput('Encoder 3').node.connect(hammond.getNamedInput('Drawbar 2 2/3').node);
-      Alesis_V25.getNamedOutput('Encoder 4').node.connect(hammond.getNamedInput('Drawbar 2').node);
+      canvasEl.connect('Alesis V25', 'Encoder 1', 'Hammond Organ', 'Drawbar 16');
+      canvasEl.connect('Alesis V25', 'Encoder 2', 'Hammond Organ', 'Drawbar 5 1/3');
+      canvasEl.connect('Alesis V25', 'Encoder 3', 'Hammond Organ', 'Drawbar 2 2/3');
+      canvasEl.connect('Alesis V25', 'Encoder 4', 'Hammond Organ', 'Drawbar 2');
       
       hammond.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
       
