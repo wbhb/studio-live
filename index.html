@@ -112,9 +112,6 @@
       <wbhb-button name="Start"></wbhb-button>
       <wbhb-button name="Stop" draggable="true"></wbhb-button>
       
-      
-      <!--<wbhb-button type="connect" name="MIDI"></wbhb-button>-->
-      
       <wbhb-button name="Save"></wbhb-button>
       <wbhb-button name="Load"></wbhb-button>
       
@@ -208,8 +205,6 @@
           <wbhb-button type="Modifier" name="Minor" draggable="true"></wbhb-button>
         </wbhb-button>
       </wbhb-button>
-      
-      <!--<wbhb-chord></wbhb-chord>-->
     </div>
     
     <wbhb-sequencer media-types="application/x.wbhb.studio.midiitem">
@@ -414,17 +409,6 @@
       sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
       sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
       
-      // sequencerEl.addEventListener('control-play', () => {
-      //   Scheduler.GLOBAL.audioContext = new AudioContext();
-      //   let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
-      //   Scheduler.GLOBAL.dispatchEvent(start);
-      // });
-      
-      // sequencerEl.addEventListener('control-stop', () => {
-      //   let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
-      //   Scheduler.GLOBAL.scheduleItem(stop);
-      // });
-      
       const rec = new Recorder();
       
       rec.init();
@@ -453,8 +437,6 @@
           }
         }));
         
-        console.log(itemId);
-        
         drumEl.itemId = itemId;
         
         kitEl.appendChild(drumEl);
@@ -468,8 +450,6 @@
           Scheduler.GLOBAL.audioContext.resume();
         }
         
-        // let start = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.START});
-        // Scheduler.GLOBAL.dispatchEvent(start);
         Scheduler.GLOBAL.start();
         
         
@@ -590,32 +570,10 @@
         
         sequencer.currentBar = e.barNumber;
       });
-          
-      // const midiContext = Alesis_V25.outputs.keys().next().value;
-      
-      // midiContext.addEventListener('midi-message', (e) => {
-      //   let item = new MIDIItem({
-      //     message: e.message,
-      //     timings: {
-      //       immediate: true
-      //     }
-      //   });
-        
-      //   if (item) {
-      //     Scheduler.GLOBAL.scheduleItem(item);
-      //   }
-        
-      // });
       
       const octaver = new Octaver();
       
       const mainOut = new MainOut();
-      
-      synth.enable();
-      kit.enable();
-      metronomeInstrument.enable();
-      promptsInstrument.enable();
-      octaver.enable();
       
       const rackItems = [
         synth,
@@ -643,35 +601,11 @@
       
       const canvasEl = document.querySelector('#rack #connections');
       
-      
-      
-      // const alesis_V25El = document.querySelector('wbhb-rack-item[name="Alesis V25"]');
-      // const synthEl = document.querySelector('wbhb-rack-item[name="Simple Synth"]');
-      // const kitEl = document.querySelector('wbhb-rack-item[name="Drum Kit: CO"]');
-      
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Octaver', 'MIDI In');
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Hammond Organ', 'MIDI In');
-      canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
       
-      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(octaver.getNamedInput('MIDI In').node);
-      // octaver.getNamedOutput('MIDI Out').node.connect(synth.getNamedInput('MIDI In').node);
-      
-      // Alesis_V25.getNamedOutput('MIDI Out').node.connect(kit.getNamedInput('MIDI In').node);
-      
-      
-      
-      // Alesis_V25.getNamedOutput('Encoder 1').node.connect(synth.getNamedInput('Attack').node);
-      // Alesis_V25.getNamedOutput('Encoder 2').node.connect(synth.getNamedInput('Decay').node);
-      // Alesis_V25.getNamedOutput('Encoder 3').node.connect(synth.getNamedInput('Sustain').node);
-      // Alesis_V25.getNamedOutput('Encoder 4').node.connect(synth.getNamedInput('Release').node);
-
-      // Alesis_V25.getNamedOutput('Pitch Wheel').node.connect(synth.getNamedInput('Detune').node);
-      
-      // synth.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
-      // kit.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
-      // metronomeInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
-      // promptsInstrument.getNamedOutput('Main Out').node.connect(Scheduler.GLOBAL.audioContext.destination);
+      canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
       
       canvasEl.connect('Simple Synth', 'Main Out', 'Main Out', 'Audio In');
       canvasEl.connect('Hammond Organ', 'Main Out', 'Main Out', 'Audio In');
@@ -693,54 +627,17 @@
       
       canvasEl.drawConnections();
       
-      // hammond.getNamedInput('Drawbar 4').gain
-      //         {
-      //     node: GlobalScheduler.audioContext.createGain(),
-      //     config: {
-      //       type: 'AudioParam',
-      //       name: 'Drawbar 4'
-      //     }
-      //   },
-      //   {
-      //     node: GlobalScheduler.audioContext.createGain(),
-      //     config: {
-      //       type: 'AudioParam',
-      //       name: 'Drawbar 2 2/3'
-      //     }
-      //   },
-      //   {
-      //     node: GlobalScheduler.audioContext.createGain(),
-      //     config: {
-      //       type: 'AudioParam',
-      //       name: 'Drawbar 2'
-      //     }
-      //   },
-      //   {
-      //     node: GlobalScheduler.audioContext.createGain(),
-      //     config: {
-      //       type: 'AudioParam',
-      //       name: 'Drawbar 1 3/5'
-      //     }
-      //   },
-      //   {
-      //     node: GlobalScheduler.audioContext.createGain(),
-      //     config: {
-      //       type: 'AudioParam',
-      //       name: 'Drawbar 1 1/3'
-      //     }
-      //   },
-      //   {
-      //     node: GlobalScheduler.audioContext.createGain(),
-      //     config: {
-      //       type: 'AudioParam',
-      //       name: 'Drawbar 1'
-      
     </script>
     
     <script type="module">
-      // TODO: Replace the following with your app's Firebase project configuration
-      var firebaseConfig = {
-        // ...
+      const firebaseConfig = {
+        apiKey: "AIzaSyANXxQRbPcrMxiWWRpttD6maRtE6u0mhpw",
+        authDomain: "wbhb-studio.firebaseapp.com",
+        projectId: "wbhb-studio",
+        storageBucket: "wbhb-studio.appspot.com",
+        messagingSenderId: "776527637044",
+        appId: "1:776527637044:web:4dfcffc68fdbf03dc37861",
+        measurementId: "G-ZH77D4F2FF"
       };
 
       firebase.initializeApp(firebaseConfig);
