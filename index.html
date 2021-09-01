@@ -241,8 +241,9 @@
       import {Prompts} from './lib/instrument/Prompts.mjs';
       import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
       import {Hammond} from './lib/instrument/Hammond.mjs';
-      import {Recorder} from './lib/audio/recorder.mjs';
-      import {Playback} from './lib/audio/playback.mjs';
+      import {UserMedia} from './lib/rack/UserMedia.mjs';
+      import {Recorder} from './lib/rack/recorder.mjs';
+      import {Playback} from './lib/rack/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
       import {Octaver} from './lib/rack/Octaver.mjs';
       import {WBHBButton} from './lib/ui/wbhb-button.mjs';
@@ -409,13 +410,9 @@
       sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
       sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
       
+      const um = new UserMedia();
       const rec = new Recorder();
-      
-      rec.init();
-      
       const pb = new Playback();
-      
-      pb.init();
           
       const kitEl = new WBHBButton();
       kitEl.type = "Drum Kit";
@@ -454,10 +451,6 @@
         
         
         rec.start();
-        
-        const gain = Scheduler.GLOBAL.audioContext.createGain({gain: 2});
-        
-        pb.playbackNode.connect(gain).connect(Scheduler.GLOBAL.audioContext.destination);
         
         pb.start();
       });
@@ -583,7 +576,10 @@
         metronomeInstrument,
         promptsInstrument,
         octaver,
-        mainOut
+        mainOut,
+        um,
+        rec,
+        pb
       ];
       
       rackItems.forEach((item) => {
@@ -612,6 +608,9 @@
       canvasEl.connect('Drum Kit: CO', 'Main Out', 'Main Out', 'Audio In');
       canvasEl.connect('Metronome', 'Main Out', 'Main Out', 'Audio In');
       canvasEl.connect('Prompts', 'Main Out', 'Main Out', 'Audio In');
+      canvasEl.connect('Playback', 'Main Out', 'Main Out', 'Audio In');
+      
+      canvasEl.connect('User Media', 'Main Out', 'Recorder', 'Audio In');
       
       canvasEl.connect('Alesis V25', 'Encoder 1', 'Hammond Organ', 'Drawbar 16');
       canvasEl.connect('Alesis V25', 'Encoder 2', 'Hammond Organ', 'Drawbar 5 1/3');
