@@ -246,6 +246,7 @@
       import {Playback} from './lib/rack/playback.mjs';
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
       import {Octaver} from './lib/rack/Octaver.mjs';
+      import {Arpeggiator} from './lib/rack/Arpeggiator.mjs';
       import {WBHBButton} from './lib/ui/wbhb-button.mjs';
       import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
@@ -565,6 +566,7 @@
       });
       
       const octaver = new Octaver();
+      const arpeg = new Arpeggiator();
       
       const mainOut = new MainOut();
       
@@ -576,6 +578,7 @@
         metronomeInstrument,
         promptsInstrument,
         octaver,
+        arpeg,
         mainOut,
         um,
         rec,
@@ -598,10 +601,12 @@
       const canvasEl = document.querySelector('#rack #connections');
       
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Octaver', 'MIDI In');
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Arpeggiator', 'MIDI In');
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Hammond Organ', 'MIDI In');
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
       
-      canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
+      // canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
+      canvasEl.connect('Arpeggiator', 'MIDI Out', 'Simple Synth', 'MIDI In');
       
       canvasEl.connect('Simple Synth', 'Main Out', 'Main Out', 'Audio In');
       canvasEl.connect('Hammond Organ', 'Main Out', 'Main Out', 'Audio In');
