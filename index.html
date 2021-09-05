@@ -12,6 +12,7 @@
     <script type="module" src='./lib/ui/wbhb-chord.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-one-bar-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -207,9 +208,9 @@
       </wbhb-button>
     </div>
     
-    <wbhb-sequencer media-types="application/x.wbhb.studio.midiitem">
-      
-    </wbhb-sequencer>
+    <wbhb-one-bar-sequencer id="drum-loop" class="sixteenth"></wbhb-one-bar-sequencer>
+    
+    <wbhb-sequencer media-types="application/x.wbhb.studio.midiitem"></wbhb-sequencer>
     
     <div id="rack">
       <canvas id="connections" is="wbhb-rack-connections"></canvas>
@@ -570,6 +571,8 @@
       const arpeg = new Arpeggiator();
       
       const oneBar = new OneBarSequencer();
+      
+      document.querySelector('#drum-loop').sequencer = oneBar;
       
       const mainOut = new MainOut();
       
