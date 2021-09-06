@@ -250,6 +250,7 @@
       import {Arpeggiator} from './lib/rack/Arpeggiator.mjs';
       import {Sequencer as Sequencer2} from './lib/rack/Sequencer.mjs';
       import {OneBarSequencer} from './lib/sequencer2/OneBarSequencer.mjs';
+      import {Repeat} from './lib/sequencer2/Repeat.mjs';
       import {WBHBButton} from './lib/ui/wbhb-button.mjs';
       import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
@@ -572,9 +573,13 @@
       const arpeg = new Arpeggiator();
       
       const oneBar = new Sequencer2();
-      oneBar.sequencer = new OneBarSequencer();
+      const oneBarSeq = new OneBarSequencer();
+      const repeat = new Repeat();
+      repeat.repeats = 0;
+      repeat.sequencers.set(oneBarSeq);
+      oneBar.sequencer = repeat;
       
-      document.querySelector('#drum-loop').sequencer = oneBar.sequencer;
+      document.querySelector('#drum-loop').sequencer = oneBarSeq;
       
       const mainOut = new MainOut();
       
