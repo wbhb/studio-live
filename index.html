@@ -576,7 +576,7 @@
       const oneBarSeq = new OneBarSequencer();
       const repeat = new Repeat();
       repeat.repeats = 0;
-      repeat.sequencers.set(oneBarSeq);
+      repeat.add(oneBarSeq);
       oneBar.sequencer = repeat;
       
       document.querySelector('#drum-loop').sequencer = oneBarSeq;
