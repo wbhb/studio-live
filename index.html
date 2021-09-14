@@ -10,8 +10,8 @@
     <script type="module" src='./lib/ui/wbhb-button.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-chord.mjs'></script>
-    <script type="module" src='./lib/ui/wbhb-sequencer.mjs'></script>
-    <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer-2.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer-track-2.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-one-bar-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
@@ -412,8 +412,8 @@
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
       
-      sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
-      sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
+      // sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
+      // sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
       
       const um = new UserMedia();
       const rec = new Recorder();
@@ -580,6 +580,8 @@
       oneBar.sequencer = repeat;
       
       document.querySelector('#drum-loop').sequencer = oneBarSeq;
+      
+      sequencerEl.sequencer = oneBarSeq;
       
       const mainOut = new MainOut();
       
