@@ -217,6 +217,7 @@
       <div id="sources"></div>
       <div id="transforms"></div>
       <div id="destinations"></div>
+    </div>
     
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
@@ -287,8 +288,6 @@
       
       const s2 = new MidiNote(36, 12);
       
-      // const s3 = new MidiNote(36, 12);
-      
       const s4a = new MidiNote(34, 24);
       
       const s4b = new MidiNote(37, 24);
@@ -340,9 +339,6 @@
       promptSequencer.items = [[chorus]];
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
-      
-      // sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
-      // sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
       
       const um = new UserMedia();
       const rec = new Recorder();
