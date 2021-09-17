@@ -10,8 +10,8 @@
     <script type="module" src='./lib/ui/wbhb-button.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-chord.mjs'></script>
-    <script type="module" src='./lib/ui/wbhb-sequencer.mjs'></script>
-    <script type="module" src='./lib/ui/wbhb-sequencer-track.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer-2.mjs'></script>
+    <script type="module" src='./lib/ui/wbhb-sequencer-track-2.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-one-bar-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
@@ -217,6 +217,7 @@
       <div id="sources"></div>
       <div id="transforms"></div>
       <div id="destinations"></div>
+    </div>
     
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
@@ -248,7 +249,11 @@
       import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
       import {Octaver} from './lib/rack/Octaver.mjs';
       import {Arpeggiator} from './lib/rack/Arpeggiator.mjs';
-      import {OneBarSequencer} from './lib/rack/OneBarSequencer.mjs';
+      import {Sequencer as Sequencer2} from './lib/rack/Sequencer.mjs';
+      import {OneBarSequencer} from './lib/sequencer2/OneBarSequencer.mjs';
+      import {Repeat} from './lib/sequencer2/Repeat.mjs';
+      import {BeatwiseSequencer, Beat} from './lib/sequencer2/BeatwiseSequencer.mjs';
+      import {MidiNote} from './lib/sequencer2/MidiNote.mjs';
       import {WBHBButton} from './lib/ui/wbhb-button.mjs';
       import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
       
@@ -259,7 +264,6 @@
       }
       
       const metronome = new Metronome();
-      const midiSequencer = new MIDISequencer();
       const promptSequencer = new Sequencer();
       
       const kit = await fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
@@ -280,122 +284,48 @@
       const hammond = new Hammond();
       hammond.midiChannel = 0;//2;
       
-      const kick = {
-        channel: 9,
-        method: MIDI.Channel_Voice,
-        command: MIDI.Note_On,
-        note: 36,
-        velocity: 127
-      };
+      const s1 = new MidiNote(36, 36);
       
-      const k1 = await ItemDB.set(new MIDIItem({
-        message: kick,
-        timings: {
-          offset: new Length(0, Length.units.beat)
-        }
-      }));
-      const k2 = await ItemDB.set(new MIDIItem({
-        message: kick,
-        timings: {
-          offset: new Length(1, Length.units.beat)
-        }
-      }));
-      const k3 = await ItemDB.set(new MIDIItem({
-        message: kick,
-        timings: {
-          offset: new Length(2.5, Length.units.beat)
-        }
-      }));
-      const k4 = await ItemDB.set(new MIDIItem({
-        message: kick,
-        timings: {
-          offset: new Length(3, Length.units.beat)
-        }
-      }));
+      const s2 = new MidiNote(36, 12);
       
-      const kickBar = await ItemDB.set(new SectionItem({
-        itemIds: [k1, k2, k3, k4],
-        repeats: 0,
-        timings: {
-          offset: new Length(0, Length.units.beat)
-        }
-      }));
+      const s4a = new MidiNote(34, 24);
       
-      const s1 = await ItemDB.set(await new MIDITupleItem({
-        note: 36,
-        channel: 0,
-        timings: {
-          offset: new Length(0, Length.units.beat),
-          length: new Length(1.4, Length.units.beat)
-        }
-      }));
+      const s4b = new MidiNote(37, 24);
       
-      const s2 = await ItemDB.set(await new MIDITupleItem({
-        note: 36,
-        channel: 0,
-        timings: {
-          offset: new Length(1.5, Length.units.beat),
-          length: new Length(0.4, Length.units.beat)
-        }
-      }));
+      const s5a = new MidiNote(34, 12);
       
-      const s3 = await ItemDB.set(await new MIDITupleItem({
-        note: 36,
-        channel: 0,
-        timings: {
-          offset: new Length(2, Length.units.beat),
-          length: new Length(0.4, Length.units.beat)
-        }
-      }));
+      const s5b = new MidiNote(37, 12);
       
-      const s4a = await ItemDB.set(await new MIDITupleItem({
-        note: 34,
-        channel: 0,
-        timings: {
-          offset: new Length(2.5, Length.units.beat),
-          length: new Length(0.9, Length.units.beat)
-        }
-      }));
+      const b1 = new Beat();
+      b1.add(s1);
       
-      const s4b = await ItemDB.set(await new MIDITupleItem({
-        note: 37,
-        channel: 0,
-        timings: {
-          offset: new Length(2.5, Length.units.beat),
-          length: new Length(0.9, Length.units.beat)
-        }
-      }));
+      const b2 = new Beat();
+      b2.add(s2);
       
-      const s5a = await ItemDB.set(await new MIDITupleItem({
-        note: 34,
-        channel: 0,
-        timings: {
-          offset: new Length(3.5, Length.units.beat),
-          length: new Length(0.4, Length.units.beat)
-        }
-      }));
+      const b4a = new Beat();
+      b4a.add(s4a);
       
-      const s5b = await ItemDB.set(await new MIDITupleItem({
-        note: 37,
-        channel: 0,
-        timings: {
-          offset: new Length(3.5, Length.units.beat),
-          length: new Length(0.4, Length.units.beat)
-        }
-      }));
+      const b4b = new Beat();
+      b4b.add(s4b);
       
-      const synthLine = await ItemDB.set(new SectionItem({
-        itemIds: [
-          [s1, s2, s3, s4a, s5a],
-          [s1, s2, s3, s4b, s5b]
-        ],
-        repeats: 0,
-        timings: {
-          offset: new Length(0, Length.units.beat)
-        }
-      }));
+      const b5a = new Beat();
+      b5a.add(s5a);
       
-      midiSequencer.items = [];//[[kickBar, synthLine]];
+      const b5b = new Beat();
+      b5b.add(s5b);
+      
+      
+      const synthLine = new BeatwiseSequencer();
+      synthLine.set(0, b1);
+      synthLine.set(36, b2);
+      synthLine.set(48, b2);
+      synthLine.set(72, b4a);
+      synthLine.set(96, b5a);
+      synthLine.set(0 + 96, b1);
+      synthLine.set(36 + 96, b2);
+      synthLine.set(48 + 96, b2);
+      synthLine.set(72 + 96, b4b);
+      synthLine.set(96 + 96, b5b);
       
       const chorus = await ItemDB.set(new PromptItem({
         prompts: ["Chorus"],
@@ -409,9 +339,6 @@
       promptSequencer.items = [[chorus]];
       
       const sequencerEl = document.querySelector('wbhb-sequencer');
-      
-      sequencerEl.addSequencer(midiSequencer, 'application/x.wbhb.studio.midiitem');
-      sequencerEl.addSequencer(promptSequencer, 'application/x.wbhb.studio.promptitem');
       
       const um = new UserMedia();
       const rec = new Recorder();
@@ -570,9 +497,22 @@
       const octaver = new Octaver();
       const arpeg = new Arpeggiator();
       
-      const oneBar = new OneBarSequencer();
+      const oneBar = new Sequencer2();
       
-      document.querySelector('#drum-loop').sequencer = oneBar;
+      const oneBarSeq = new OneBarSequencer();
+      const repeat = new Repeat();
+      repeat.repeats = 0;
+      repeat.add(oneBarSeq);
+      oneBar.sequencer = repeat;
+      
+      const midiSynth = new Sequencer2();
+      midiSynth.name = 'Synth Line';
+      midiSynth.sequencer = synthLine;
+      
+      
+      document.querySelector('#drum-loop').sequencer = oneBarSeq;
+      
+      sequencerEl.sequencer = synthLine;
       
       const mainOut = new MainOut();
       
@@ -589,7 +529,8 @@
         um,
         rec,
         pb,
-        oneBar
+        oneBar,
+        midiSynth
       ];
       
       rackItems.forEach((item) => {
@@ -615,7 +556,9 @@
       canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
       canvasEl.connect('Arpeggiator', 'MIDI Out', 'Simple Synth', 'MIDI In');
       
-      canvasEl.connect('One Bar Sequencer', 'MIDI Out', 'Drum Kit: CO', 'MIDI In');
+      canvasEl.connect('Sequencer', 'MIDI Out', 'Drum Kit: CO', 'MIDI In');
+      
+      canvasEl.connect('Synth Line', 'MIDI Out', 'Simple Synth', 'MIDI In');
       
       canvasEl.connect('Simple Synth', 'Main Out', 'Main Out', 'Audio In');
       canvasEl.connect('Hammond Organ', 'Main Out', 'Main Out', 'Audio In');
