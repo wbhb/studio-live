@@ -2,3 +2,4 @@ static
 favicon.ico
 .firebaserc
 .vscode
+*.log
