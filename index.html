@@ -503,7 +503,7 @@
       const oneBarSeq = new OneBarSequencer();
       const repeat = new Repeat();
       repeat.repeats = 0;
-      repeat.add(oneBarSeq);
+      // repeat.add(oneBarSeq);
       oneBar.sequencer = repeat;
       
       const midiSynth = new Sequencer2();
@@ -513,7 +513,7 @@
       
       document.querySelector('#drum-loop').sequencer = oneBarSeq;
       
-      sequencerEl.sequencer = synthLine;
+      sequencerEl.sequencer = new BeatwiseSequencer();//synthLine;
       
       const mainOut = new MainOut();
       
