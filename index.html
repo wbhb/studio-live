@@ -221,7 +221,7 @@
     
     <script type="module">
       import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
-      import {Metronome} from './lib/sequencer/metronome.mjs';
+      import {Metronome} from './lib/sequencer2/Metronome.mjs';
       import {ItemDB} from './lib/sequencer/items/ItemDB.mjs';
       import {SequencerItem} from './lib/sequencer/items/SequencerItem.mjs';
       import {SectionItem} from './lib/sequencer/items/SectionItem.mjs';
@@ -493,10 +493,14 @@
         
         sequencer.currentBar = e.barNumber;
       });
-      
+
       const octaver = new Octaver();
       const arpeg = new Arpeggiator();
       
+      const metronomeUI = new Sequencer2();
+      metronomeUI.name = "Metronome Seq";
+      metronomeUI.sequencer = metronome;
+
       const oneBar = new Sequencer2();
       
       const oneBarSeq = new OneBarSequencer();
@@ -530,7 +534,8 @@
         rec,
         pb,
         oneBar,
-        midiSynth
+        midiSynth,
+        metronomeUI
       ];
       
       rackItems.forEach((item) => {
@@ -551,12 +556,14 @@
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Octaver', 'MIDI In');
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Arpeggiator', 'MIDI In');
       canvasEl.connect('Alesis V25', 'MIDI Out', 'Hammond Organ', 'MIDI In');
-      // canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
+      canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
       
       canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
       canvasEl.connect('Arpeggiator', 'MIDI Out', 'Simple Synth', 'MIDI In');
       
       canvasEl.connect('Sequencer', 'MIDI Out', 'Drum Kit: CO', 'MIDI In');
+
+      canvasEl.connect('Metronome Seq', 'MIDI Out', 'Metronome', 'MIDI In');
       
       canvasEl.connect('Synth Line', 'MIDI Out', 'Simple Synth', 'MIDI In');
       
