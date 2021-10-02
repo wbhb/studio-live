@@ -354,16 +354,17 @@
         drumEl.name = drum.name;
         drumEl.setAttribute('draggable','true');
         
-        const itemId = await ItemDB.set(new MIDIItem({
-          message: {
-            note: DrumKit.getNoteNumber(drum.name),
-            channel: 9,
-            method: MIDI.Channel_Voice,
-            command: MIDI.Note_On,
-            velocity: 127
-          }
-        }));
+        const message = new MIDI.Message({
+          note: DrumKit.getNoteNumber(drum.name),
+          channel: 9,
+          method: MIDI.Channel_Voice,
+          command: MIDI.Note_On,
+          velocity: 127
+        });
+
+        const itemId = await ItemDB.set(new MIDIItem({message}));
         
+        drumEl.midiMessage = message;
         drumEl.itemId = itemId;
         
         kitEl.appendChild(drumEl);
@@ -502,7 +503,7 @@
       const oneBarSeq = new OneBarSequencer();
       const repeat = new Repeat();
       repeat.repeats = 0;
-      repeat.add(oneBarSeq);
+      // repeat.add(oneBarSeq);
       oneBar.sequencer = repeat;
       
       const midiSynth = new Sequencer2();
@@ -512,7 +513,7 @@
       
       document.querySelector('#drum-loop').sequencer = oneBarSeq;
       
-      sequencerEl.sequencer = synthLine;
+      sequencerEl.sequencer = new BeatwiseSequencer();//synthLine;
       
       const mainOut = new MainOut();
       
