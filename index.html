@@ -6,6 +6,9 @@
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
     
     <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
+
+    <script type="module" src="./src/rack.mjs"></script>
+    <script type="module" src="./src/buttons.mjs"></script>
     
     <script type="module" src='./lib/ui/wbhb-button.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.mjs'></script>
@@ -14,10 +17,13 @@
     <script type="module" src='./lib/ui/wbhb-sequencer-track-2.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-one-bar-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
+
+    <link href="./src/rack.css" rel="stylesheet">
+
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></script>
     
     <style>
       
@@ -77,29 +83,14 @@
         font-size: 18pt;
         color: var(--wbhb-color-grey);
       }
-      
-      #rack {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-      }
-      
-      #rack #connections {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
-      
-      #rack #sources {
-        width: 20vw;
-      }
-      
-      #rack #transforms {
-        width: 30vw;
-      }
-      
-      #rack #destinations {
-        width: 20vw;
+
+      #controls > wbhb-button:not(.resolved) {
+        width: var(--grid-size);
+        height: var(--grid-size);
+        
+        background-color: var(--wbhb-color-grey-trans);
+        border: solid 2px var(--wbhb-color-grey);
+        border-radius: calc(var(--grid-size) / 2);
       }
     </style>
   </head>
@@ -218,10 +209,6 @@
       <div id="transforms"></div>
       <div id="destinations"></div>
     </div>
-    
-    <script type="module" src="./src/rack.mjs"></script>
-
-    <script type="module" src="./src/buttons.mjs"></script>
 
     <script type="module">
       const AudioContext = window.AudioContext || window.webkitAudioContext;

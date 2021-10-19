@@ -1,0 +1,23 @@
+#rack {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#rack #connections {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#rack #sources {
+  width: 20vw;
+}
+
+#rack #transforms {
+  width: 30vw;
+}
+
+#rack #destinations {
+  width: 20vw;
+}
