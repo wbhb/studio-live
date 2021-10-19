@@ -6,6 +6,9 @@
     <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
     
     <link rel="icon" sizes="192x192" href="./static/images/logo_new.png">
+
+    <script type="module" src="./src/rack.mjs"></script>
+    <script type="module" src="./src/buttons.mjs"></script>
     
     <script type="module" src='./lib/ui/wbhb-button.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-adjust-tempo.mjs'></script>
@@ -14,10 +17,13 @@
     <script type="module" src='./lib/ui/wbhb-sequencer-track-2.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-one-bar-sequencer.mjs'></script>
     <script type="module" src='./lib/ui/wbhb-rack-connections.mjs'></script>
+
+    <link href="./src/rack.css" rel="stylesheet">
+
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></script>
     
     <style>
       
@@ -77,29 +83,14 @@
         font-size: 18pt;
         color: var(--wbhb-color-grey);
       }
-      
-      #rack {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-      }
-      
-      #rack #connections {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
-      
-      #rack #sources {
-        width: 20vw;
-      }
-      
-      #rack #transforms {
-        width: 30vw;
-      }
-      
-      #rack #destinations {
-        width: 20vw;
+
+      #controls > wbhb-button:not(.resolved) {
+        width: var(--grid-size);
+        height: var(--grid-size);
+        
+        background-color: var(--wbhb-color-grey-trans);
+        border: solid 2px var(--wbhb-color-grey);
+        border-radius: calc(var(--grid-size) / 2);
       }
     </style>
   </head>
@@ -218,379 +209,13 @@
       <div id="transforms"></div>
       <div id="destinations"></div>
     </div>
-    
+
     <script type="module">
-      import {Scheduler, CONTROL_CODES as SCHEDULER_CONTROL_CODES} from './lib/scheduler/scheduler.mjs';
-      import {Metronome} from './lib/sequencer2/Metronome.mjs';
-      import {ItemDB} from './lib/sequencer/items/ItemDB.mjs';
-      import {SequencerItem} from './lib/sequencer/items/SequencerItem.mjs';
-      import {SectionItem} from './lib/sequencer/items/SectionItem.mjs';
-      import {ControlCode, ControlItem} from './lib/sequencer/items/ControlItem.mjs';
-      import {PromptItem} from './lib/sequencer/items/PromptItem.mjs';
-      import {CachedAudioItem} from './lib/sequencer/items/CachedAudioItem.mjs';
-      import {ChordItem} from './lib/sequencer/items/ChordItem.mjs';
-      import {MIDIItem} from './lib/sequencer/items/MIDIItem.mjs';
-      import {MIDITupleItem} from './lib/sequencer/items/MIDITupleItem.mjs';
-      import {TimeSignature} from './lib/util/timeSignature.mjs';
-      import {Sequencer} from './lib/sequencer/sequencer.mjs';
-      import {MIDISequencer} from './lib/sequencer/MIDISequencer.mjs';
-      import {Chord} from './lib/util/chords.mjs';
-      import {Length} from './lib/util/length.mjs';
-      import {MIDI} from './lib/util/midi.mjs';
-      import {MIDIRemap} from './lib/util/midiRemap.mjs';
-      import {MainOut} from './lib/instrument/MainOut.mjs';
-      import {DrumKit} from './lib/instrument/DrumKit.mjs';
-      import {Prompts} from './lib/instrument/Prompts.mjs';
-      import {SynthInstrument as Synth} from './lib/instrument/SynthInstrument.mjs';
-      import {Hammond} from './lib/instrument/Hammond.mjs';
-      import {UserMedia} from './lib/rack/UserMedia.mjs';
-      import {Recorder} from './lib/rack/recorder.mjs';
-      import {Playback} from './lib/rack/playback.mjs';
-      import {Alesis_V25} from './lib/rack/Alesis_V25.mjs';
-      import {Octaver} from './lib/rack/Octaver.mjs';
-      import {Arpeggiator} from './lib/rack/Arpeggiator.mjs';
-      import {Sequencer as Sequencer2} from './lib/rack/Sequencer.mjs';
-      import {OneBarSequencer} from './lib/sequencer2/OneBarSequencer.mjs';
-      import {Repeat} from './lib/sequencer2/Repeat.mjs';
-      import {BeatwiseSequencer, Beat} from './lib/sequencer2/BeatwiseSequencer.mjs';
-      import {MidiNote} from './lib/sequencer2/MidiNote.mjs';
-      import {WBHBButton} from './lib/ui/wbhb-button.mjs';
-      import {WBHBRackItem} from './lib/ui/wbhb-rack-item.mjs';
-      
       const AudioContext = window.AudioContext || window.webkitAudioContext;
 
       if (!AudioContext) {
         throw new Error("WebAudio not supported");
       }
-      
-      const metronome = new Metronome();
-      const promptSequencer = new Sequencer();
-      
-      const kit = await fetch('static/audio/drums/CO/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = 9; return kit}).catch('Error creating drumkit');
-      
-      kit.name = "Drum Kit: CO";
-      
-      const metronomeInstrument = await fetch('static/audio/drums/Metronome/init.json').then(response => response.json()).then(DrumKit.create).then((kit) => {kit.midiChannel = -1; return kit}).catch('Error creating metronome');
-      
-      metronomeInstrument.name = "Metronome";
-      
-      const promptsInstrument = await fetch('static/audio/prompts/MT.com/en-us/init.json').then(response => response.json()).then(Prompts.create).then((kit) => {kit.midiChannel = -2; return kit}).catch('Error creating prompts');
-      
-      promptsInstrument.name = "Prompts";
-      
-      const synth = new Synth();
-      synth.midiChannel = 0;
-      
-      const hammond = new Hammond();
-      hammond.midiChannel = 0;//2;
-      
-      const s1 = new MidiNote(36, 36);
-      
-      const s2 = new MidiNote(36, 12);
-      
-      const s4a = new MidiNote(34, 24);
-      
-      const s4b = new MidiNote(37, 24);
-      
-      const s5a = new MidiNote(34, 12);
-      
-      const s5b = new MidiNote(37, 12);
-      
-      const b1 = new Beat();
-      b1.add(s1);
-      
-      const b2 = new Beat();
-      b2.add(s2);
-      
-      const b4a = new Beat();
-      b4a.add(s4a);
-      
-      const b4b = new Beat();
-      b4b.add(s4b);
-      
-      const b5a = new Beat();
-      b5a.add(s5a);
-      
-      const b5b = new Beat();
-      b5b.add(s5b);
-      
-      
-      const synthLine = new BeatwiseSequencer();
-      synthLine.set(0, b1);
-      synthLine.set(36, b2);
-      synthLine.set(48, b2);
-      synthLine.set(72, b4a);
-      synthLine.set(96, b5a);
-      synthLine.set(0 + 96, b1);
-      synthLine.set(36 + 96, b2);
-      synthLine.set(48 + 96, b2);
-      synthLine.set(72 + 96, b4b);
-      synthLine.set(96 + 96, b5b);
-      
-      const chorus = await ItemDB.set(new PromptItem({
-        prompts: ["Chorus"],
-        count: true,
-        timings: {
-          offset: new Length(2, Length.units.bar)
-        }
-      }));
-      
-      
-      promptSequencer.items = [[chorus]];
-      
-      const sequencerEl = document.querySelector('wbhb-sequencer');
-      
-      const um = new UserMedia();
-      const rec = new Recorder();
-      const pb = new Playback();
-          
-      const kitEl = new WBHBButton();
-      kitEl.type = "Drum Kit";
-      kitEl.name = kit.name;
-      
-      kit.drums.forEach(async (drum) => {
-        const drumEl = new WBHBButton();
-        drumEl.type = "Hit";
-        drumEl.name = drum.name;
-        drumEl.setAttribute('draggable','true');
-        
-        const message = new MIDI.Message({
-          note: DrumKit.getNoteNumber(drum.name),
-          channel: 9,
-          method: MIDI.Channel_Voice,
-          command: MIDI.Note_On,
-          velocity: 127
-        });
-
-        const itemId = await ItemDB.set(new MIDIItem({message}));
-        
-        drumEl.midiMessage = message;
-        drumEl.itemId = itemId;
-        
-        kitEl.appendChild(drumEl);
-      });
-      
-      document.querySelector('wbhb-button[name="Drums"]').appendChild(kitEl);
-      
-      document.querySelector('wbhb-button[name="Start"]').addEventListener('click', () => {
-        
-        if (Scheduler.GLOBAL.audioContext.state === 'suspended') {
-          Scheduler.GLOBAL.audioContext.resume();
-        }
-        
-        Scheduler.GLOBAL.start();
-        
-        
-        rec.start();
-        
-        pb.start();
-      });
-      
-      document.querySelector('wbhb-button[name="Save"]').addEventListener('click', async () => {
-        
-        rec.handle = await showSaveFilePicker({
-          types: [{
-            description: 'Audio',
-            accept: {'audio/x-wbhb-basic': ['.wbhbabasic']},
-          }],
-          excludeAcceptAllOption: true,
-          multiple: false
-        });
-      });
-      
-      document.querySelector('wbhb-button[name="Load"]').addEventListener('click', async () => {
-        
-        
-        [pb.handle] = await showOpenFilePicker({
-          types: [{
-            description: 'Audio',
-            accept: {'audio/x-wbhb-basic': ['.wbhbabasic']},
-          }],
-          excludeAcceptAllOption: true,
-          multiple: false
-        });
-      });
-      
-      document.querySelector('wbhb-button[name="Stop"]').addEventListener('click', () => {
-        let stop = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.STOP});
-        Scheduler.GLOBAL.scheduleItem(stop);
-        
-        rec.stop();
-        pb.stop();
-      });
-      
-      document.querySelector('wbhb-adjust-tempo').tempo.addEventListener('change', (e) => {
-        let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TEMPO});
-        item.payload = document.querySelector('wbhb-adjust-tempo').tempo;
-        Scheduler.GLOBAL.scheduleItem(item);
-      });
-      
-      document.querySelectorAll('wbhb-button[type="Time"]').forEach((node) => {
-        const parts = node.getAttribute('name').split('/');
-        const upper = Number.parseInt(parts[0], 10);
-        const lower = Number.parseInt(parts[1], 10);
-        if (upper && lower) {
-          node.addEventListener('click', () => {
-            let item = new ControlItem({timings: {immediate: true}, controlCode: SCHEDULER_CONTROL_CODES.TIME_SIGNATURE});
-            item.payload = new TimeSignature(upper, lower);
-            Scheduler.GLOBAL.dispatchEvent(item);
-          });
-        }
-      });
-      
-      document.querySelectorAll('wbhb-button[type="Prompt"]').forEach((node) => {
-        const name = node.getAttribute('name');
-        node.addEventListener('click', () => {
-          let item = new PromptItem({timings: {immediate: true}, count: true});
-          item.add(name);
-          Scheduler.GLOBAL.dispatchEvent(item);
-        });
-      });
-      
-      document.querySelectorAll('wbhb-button[name="Chords"] wbhb-button:not([type="More"]):not([type="Modifier"])').forEach((node) => {
-        const name = node.getAttribute('name');
-        const type = node.getAttribute('type');
-        
-        let item = new ChordItem({timings: {length: {unit: 'beat', value: 1}}});
-        let chord = new Chord(name);
-        chord = chord.setQuality(type);
-        item.chord = chord;
-        node.item = item;
-        
-        node.addEventListener('click', () => {
-          let item = new ChordItem({...node.item, ...{timings: {immediate: true}}});
-          Scheduler.GLOBAL.dispatchEvent(item);
-        });
-      });
-      
-      document.querySelectorAll('wbhb-button[type="Prompt"]').forEach((node) => {
-        const name = node.getAttribute('name');
-        const type = node.getAttribute('type');
-        
-        let item = new PromptItem({timings: {length: {unit: 'beat', value: 1}}});
-        node.item = item;
-        
-        node.addEventListener('click', () => {
-          let item = new PromptItem({...node.item, ...{timings: {immediate: true}}});
-          Scheduler.GLOBAL.dispatchEvent(item);
-        });
-      });
-      
-      document.querySelectorAll('wbhb-button[type="Hit"]').forEach((node) => {
-        const name = node.getAttribute('name');
-        
-        let item = new CachedAudioItem({cacheKey: name, timings: {length: {unit: 'beat', value: 1}}});
-        node.item = item;
-        
-        node.addEventListener('click', () => {
-          let item = new CachedAudioItem({...node.item, ...{cacheKey: node.item.cacheKey, timings: {immediate: true}}});
-          Scheduler.GLOBAL.dispatchEvent(item);
-        });
-      });
-      
-      Scheduler.GLOBAL.addEventListener("nextBar", (e) => {
-        
-        const sequencer = document.querySelector("wbhb-sequencer");
-        
-        sequencer.currentBar = e.barNumber;
-      });
-
-      const octaver = new Octaver();
-      const arpeg = new Arpeggiator();
-      
-      const metronomeUI = new Sequencer2();
-      metronomeUI.name = "Metronome Seq";
-      metronomeUI.sequencer = metronome;
-
-      const oneBar = new Sequencer2();
-      
-      const oneBarSeq = new OneBarSequencer();
-      const repeat = new Repeat();
-      repeat.repeats = 0;
-      // repeat.add(oneBarSeq);
-      oneBar.sequencer = repeat;
-      
-      const midiSynth = new Sequencer2();
-      midiSynth.name = 'Synth Line';
-      midiSynth.sequencer = synthLine;
-      
-      
-      document.querySelector('#drum-loop').sequencer = oneBarSeq;
-      
-      sequencerEl.sequencer = new BeatwiseSequencer();//synthLine;
-      
-      const mainOut = new MainOut();
-      
-      const rackItems = [
-        synth,
-        hammond,
-        Alesis_V25,
-        kit,
-        metronomeInstrument,
-        promptsInstrument,
-        octaver,
-        arpeg,
-        mainOut,
-        um,
-        rec,
-        pb,
-        oneBar,
-        midiSynth,
-        metronomeUI
-      ];
-      
-      rackItems.forEach((item) => {
-        const el = new WBHBRackItem(item);
-        if (item.isSource) {
-          document.querySelector('#rack #sources').appendChild(el)
-        }
-        if (item.isTransform) {
-          document.querySelector('#rack #transforms').appendChild(el)
-        }
-        if (item.isDestination) {
-          document.querySelector('#rack #destinations').appendChild(el)
-        }
-      });
-      
-      const canvasEl = document.querySelector('#rack #connections');
-      
-      canvasEl.connect('Alesis V25', 'MIDI Out', 'Octaver', 'MIDI In');
-      canvasEl.connect('Alesis V25', 'MIDI Out', 'Arpeggiator', 'MIDI In');
-      canvasEl.connect('Alesis V25', 'MIDI Out', 'Hammond Organ', 'MIDI In');
-      canvasEl.connect('Alesis V25', 'MIDI Out', 'Drum Kit: CO', "MIDI In");
-      
-      canvasEl.connect('Octaver', 'MIDI Out', 'Simple Synth', 'MIDI In');
-      canvasEl.connect('Arpeggiator', 'MIDI Out', 'Simple Synth', 'MIDI In');
-      
-      canvasEl.connect('Sequencer', 'MIDI Out', 'Drum Kit: CO', 'MIDI In');
-
-      canvasEl.connect('Metronome Seq', 'MIDI Out', 'Metronome', 'MIDI In');
-      
-      canvasEl.connect('Synth Line', 'MIDI Out', 'Simple Synth', 'MIDI In');
-      
-      canvasEl.connect('Simple Synth', 'Main Out', 'Main Out', 'Audio In');
-      canvasEl.connect('Hammond Organ', 'Main Out', 'Main Out', 'Audio In');
-      canvasEl.connect('Drum Kit: CO', 'Main Out', 'Main Out', 'Audio In');
-      canvasEl.connect('Metronome', 'Main Out', 'Main Out', 'Audio In');
-      canvasEl.connect('Prompts', 'Main Out', 'Main Out', 'Audio In');
-      canvasEl.connect('Playback', 'Main Out', 'Main Out', 'Audio In');
-      
-      canvasEl.connect('User Media', 'Main Out', 'Recorder', 'Audio In');
-      
-      canvasEl.connect('Alesis V25', 'Encoder 1', 'Hammond Organ', 'Drawbar 16');
-      canvasEl.connect('Alesis V25', 'Encoder 2', 'Hammond Organ', 'Drawbar 5 1/3');
-      canvasEl.connect('Alesis V25', 'Encoder 3', 'Hammond Organ', 'Drawbar 2 2/3');
-      canvasEl.connect('Alesis V25', 'Encoder 4', 'Hammond Organ', 'Drawbar 2');
-      
-      canvasEl.connect('Alesis V25', 'Encoder 1', 'Simple Synth', "Attack");
-      canvasEl.connect('Alesis V25', 'Encoder 2', 'Simple Synth', "Decay");
-      canvasEl.connect('Alesis V25', 'Encoder 3', 'Simple Synth', "Sustain");
-      canvasEl.connect('Alesis V25', 'Encoder 4', 'Simple Synth', "Release");
-      canvasEl.connect('Alesis V25', 'Pitch Wheel', 'Simple Synth', "Detune");
-      
-      
-      canvasEl.drawConnections();
-      
     </script>
     
     <script type="module">
